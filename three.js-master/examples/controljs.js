@@ -14,7 +14,7 @@ $(document).ready(function () {
     function closedButton() {
         $(".button-bottom").toggleClass("button-bottom-hide");
         $("#corner-button-top").css("display", "inline-block");
-        DongCua();
+        CloseFucntion();
     }
     $(".function-button").on("click tap", function () {
         closedButton();

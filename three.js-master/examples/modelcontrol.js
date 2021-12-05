@@ -5,7 +5,6 @@ import { GUI } from "./jsm/libs/lil-gui.module.min.js";
 import { OrbitControls } from "./jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "./jsm/loaders/GLTFLoader.js";
 import { FBXLoader } from "./jsm/loaders/FBXLoader.js";
-import { DragControls } from "./jsm/controls/DragControls.js";
 import { TransformControls } from "./jsm/controls/TransformControls.js";
 
 let scene, renderer, camera, stats, mesh;
@@ -31,14 +30,24 @@ const additiveActions = {
 	agree: { weight: 0 },
 	headShake: { weight: 0 },
 };
-let panelSettings, numAnimations;
+let panelSettings;
 let sprite;
 var gaModel, banhModel;
 var displayGa = false;
 var objects = [];
 var controlObj;
+var objectsSelect = [];
 
-var isDongCua = false;;
+
+var isClose = true;
+
+//Nuong Ga
+var isNuongGa = false;
+var stepNuongGa;
+
+
+
+var isHapBanh = false;
 
 //Info canvas
 
@@ -149,7 +158,7 @@ function init() {
 		animations = gltf.animations;
 		mixer = new THREE.AnimationMixer(model);
 
-		numAnimations = animations.length;
+		//numAnimations = animations.length;
 
 		scene.add(model);
 
@@ -211,97 +220,114 @@ function loadGa() {
 			}
 		});
 
-		
-		
-		//scene.add( controlObj );
+		const geometry = new THREE.SphereGeometry(2, 32, 16);
+		const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+		const startButton = new THREE.Mesh(geometry, material);
+		startButton.position.set(0.42,0.29,0.53);
+		startButton.scale.set(0.01,0.01,0.01);
+		scene.add(startButton)
+		startButton.name = "startbutton";
+		objectsSelect.push(startButton);
 
+		const plusButton = new THREE.Mesh(geometry, material);
+		plusButton.position.set(0.35,0.29,0.53);
+		plusButton.scale.set(0.01,0.01,0.01);
+		scene.add(plusButton)
+		plusButton.name = "plusbutton";
+		objectsSelect.push(plusButton);
 
-		// objects.push(gaModel);
+		const minusButton = new THREE.Mesh(geometry, material);
+		minusButton.position.set(0.27,0.29,0.53);
+		minusButton.scale.set(0.01,0.01,0.01);
+		scene.add(minusButton)
+		minusButton.name = "minusbutton";
+		objectsSelect.push(minusButton);
 
-		// var controlsDrag = new DragControls(objects, camera, renderer.domElement);
-		// controlsDrag.addEventListener("dragstart", dragStartCallback);
-		// controlsDrag.addEventListener("drag", dragCallback);
-		// controlsDrag.addEventListener("dragend", dragendCallback);
+		const restartButton = new THREE.Mesh(geometry, material);
+		restartButton.position.set(0.19,0.29,0.53);
+		restartButton.scale.set(0.01,0.01,0.01);
+		scene.add(restartButton)
+		restartButton.name = "restartbutton";
+		objectsSelect.push(restartButton);
 
-		//scene.remove(gaModel);
+		window.addEventListener('keydown', function (event) {
 
-		window.addEventListener( 'keydown', function ( event ) {
-
-			switch ( event.keyCode ) {
+			switch (event.keyCode) {
 
 				case 81: // Q
-				controlObj.setSpace( controlObj.space === 'local' ? 'world' : 'local' );
-				console.log(gaModel.position);
+					controlObj.setSpace(controlObj.space === 'local' ? 'world' : 'local');
+					console.log(gaModel.position);
 					break;
 
 				case 16: // Shift
-				controlObj.setTranslationSnap( 100 );
-				controlObj.setRotationSnap( THREE.MathUtils.degToRad( 15 ) );
-				controlObj.setScaleSnap( 0.25 );
+					controlObj.setTranslationSnap(100);
+					controlObj.setRotationSnap(THREE.MathUtils.degToRad(15));
+					controlObj.setScaleSnap(0.25);
 					break;
 
 				case 87: // W
-				controlObj.setMode( 'translate' );
+					controlObj.setMode('translate');
 					break;
 
 				case 69: // E
-				controlObj.setMode( 'rotate' );
+					controlObj.setMode('rotate');
 					break;
 
 				case 82: // R
-				controlObj.setMode( 'scale' );
+					controlObj.setMode('scale');
 					break;
 
 				case 67: // C
-					
+
 					break;
 
 				case 86: // V
-				
+
 					break;
 				case 187:
 				case 107: // +, =, num+
-				controlObj.setSize( controlObj.size + 0.1 );
+					controlObj.setSize(controlObj.size + 0.1);
 					break;
 
 				case 189:
 				case 109: // -, _, num-
-				controlObj.setSize( Math.max( controlObj.size - 0.1, 0.1 ) );
+					controlObj.setSize(Math.max(controlObj.size - 0.1, 0.1));
 					break;
 
 				case 88: // X
-				controlObj.showX = ! controlObj.showX;
+					controlObj.showX = !controlObj.showX;
 					break;
 
 				case 89: // Y
-				controlObj.showY = ! controlObj.showY;
+					controlObj.showY = !controlObj.showY;
 					break;
 
 				case 90: // Z
-				controlObj.showZ = ! controlObj.showZ;
+					controlObj.showZ = !controlObj.showZ;
 					break;
 
 				case 32: // Spacebar
-				controlObj.enabled = ! controlObj.enabled;
+					controlObj.enabled = !controlObj.enabled;
 					break;
 
 			}
 
-		} );
+		});
 
-		window.addEventListener( 'keyup', function ( event ) {
+		window.addEventListener('keyup', function (event) {
 
-			switch ( event.keyCode ) {
+			switch (event.keyCode) {
 
 				case 16: // Shift
-					control.setTranslationSnap( null );
-					control.setRotationSnap( null );
-					control.setScaleSnap( null );
+					control.setTranslationSnap(null);
+					control.setRotationSnap(null);
+					control.setScaleSnap(null);
 					break;
 
 			}
 
-		} );
+		});
+		document.addEventListener('mousedown', onDocumentMouseDown);
 	});
 }
 
@@ -483,19 +509,23 @@ function animate() {
 	updateAnnotationOpacity();
 	updateScreenPosition();
 	//update();
-	if(gaModel.position.z < 0.2 && isDongCua == false){
-		isDongCua = true;
+	if (gaModel.position.z < 0.2 && isClose == false && isNuongGa == true && stepNuongGa == 1) {
+		isClose = true;
 		//DongCua();
 		controlObj.showZ = false;
-		controlObj.enabled = false;	
+		controlObj.enabled = false;
 		NuongGa(2);
+	}
+	if (isClose && isNuongGa && stepNuongGa == 2) {
+		NuongGa(3);
+
 	}
 }
 
 function render() {
 
-	renderer.render( scene, camera );
-	
+	renderer.render(scene, camera);
+
 }
 
 function updateAnnotationOpacity() {
@@ -506,7 +536,7 @@ function updateAnnotationOpacity() {
 }
 
 function updateScreenPosition() {
-	const vector = new THREE.Vector3(0.9, 1, 0);
+	const vector = new THREE.Vector3(0.8, 0.5, 0);
 	const canvas = renderer.domElement;
 
 	vector.project(camera);
@@ -527,6 +557,7 @@ window.MoCua = function MoCua() {
 	if (actionDC != null) {
 		actionDC.stop();
 	}
+	isClose = false;
 	actionMC = mixer.clipAction(animations[5]);
 	actionMC.timeScale = 0.3;
 	actionMC.setLoop(THREE.LoopOnce);
@@ -539,7 +570,7 @@ window.DongCua = function DongCua() {
 	if (actionMC != null) {
 		actionMC.stop();
 	}
-
+	isClose = true;
 	actionDC = mixer.clipAction(animations[2]);
 	actionDC.timeScale = 0.3;
 	actionDC.setLoop(THREE.LoopOnce);
@@ -548,28 +579,61 @@ window.DongCua = function DongCua() {
 	actionDC.play().reset();
 };
 
+window.CloseFucntion = function CloseFucntion() {
+
+	if (!isClose) {
+		DongCua();
+
+	} else {
+
+
+	}
+	scene.remove(controlObj);
+	scene.remove(gaModel);
+	isNuongGa = false;
+	isHapBanh = false;
+}
+
 window.NuongGa = function NuongGa(value) {
+	isNuongGa = true;
 	switch (value) {
 		case 1:
+			stepNuongGa = 1;
 			MoCua();
 			//controls.enableRotate = false;
-			scene.add(sprite);
-			setTimeout(() => { 
+			//scene.add(sprite);
+			setTimeout(() => {
 
 				scene.add(gaModel);
-				controlObj.attach( gaModel );
-				scene.add( controlObj );
-				
-			 }, 3000);
+				controlObj.attach(gaModel);
+				scene.add(controlObj);
+
+			}, 3000);
 			document.getElementById("fucntion").innerHTML = "Nướng Gà";
+			document.getElementById("step").innerHTML = "Bước 1";
 			document.getElementById("content").innerHTML = "Cho gà vào lồi";
 			break;
 		case 2:
 			console.log("next");
+			stepNuongGa = 2;
 			document.getElementById("fucntion").innerHTML = "Nướng Gà";
-			document.getElementById("content").innerHTML = "Điều chỉnh";
+			document.getElementById("step").innerHTML = "Bước 2";
+			document.getElementById("content").innerHTML = "Điều chỉnh bảng và chọn chức năng nướng";
 			DongCua();
-			controlObj.enabled = true;	
+			isClose = true;
+			controlObj.enabled = true;
+			camera.position.set(2, 1, 0.7);
+			controls.target.set(0, 0, 0);
+			break;
+		case 3:
+			console.log("next");
+			stepNuongGa = 3;
+			document.getElementById("fucntion").innerHTML = "Nướng Gà";
+			document.getElementById("step").innerHTML = "Bước 3";
+			document.getElementById("content").innerHTML = "chojn";
+			DongCua();
+			isClose = true;
+			controlObj.enabled = true;
 			break;
 		default:
 			console.log(value);
@@ -590,5 +654,23 @@ window.BanhBao = function BanhBao(value) {
 			console.log(value);
 	}
 };
+
+function onDocumentMouseDown(event) {
+	event.preventDefault();
+	var mouse3D = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1,
+		-(event.clientY / window.innerHeight) * 2 + 1,
+		0.5);
+	var raycaster = new THREE.Raycaster();
+	raycaster.setFromCamera(mouse3D, camera);
+	var intersects = raycaster.intersectObjects(objectsSelect);
+	if (intersects[0] != null){
+		if (intersects[0].object.name == "startbutton"){
+			console.log("start");
+		}
+		else if (intersects[0].object.name == "plusbutton"){
+			console.log("plus");
+		}
+	}
+}
 
 
