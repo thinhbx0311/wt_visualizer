@@ -207,21 +207,7 @@ function init() {
 	// } ));
 	// scene.add(tracker);
 
-	const loaderArrow = new FBXLoader();
-	loaderArrow.load("models/fbx/my-arrow.fbx", function (object) {
-		arrowModel = object.children[0];
-		arrowModel.position.set(0.9, 0.65, 0);
-		arrowModel.scale.set(0.07, 0.01, 0.07);
 
-		arrowModel.traverse(function (child) {
-			if (child.isMesh) {
-				//child.material.map = texture;
-				//child.material.needsUpdate = true;
-				child.castShadow = true;
-				//scene.add(arrowModel);
-			}
-		});
-	});
 
 	const loaderBanh = new FBXLoader();
 	loaderBanh.load("models/fbx/Banhbao.fbx", function (object) {
