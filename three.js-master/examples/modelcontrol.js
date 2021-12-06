@@ -6,6 +6,7 @@ import { OrbitControls } from "./jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "./jsm/loaders/GLTFLoader.js";
 import { FBXLoader } from "./jsm/loaders/FBXLoader.js";
 import { TransformControls } from "./jsm/controls/TransformControls.js";
+import { RoomEnvironment } from './jsm/environments/RoomEnvironment.js';
 
 let scene, renderer, camera, stats, mesh;
 let model, skeleton, mixer, clock, controls;
@@ -14,6 +15,7 @@ var animations;
 var actionMC, actionDC;
 
 const crossFadeControls = [];
+var timeouts = [];
 
 let currentBaseAction = "Mocua";
 const baseActions = {
@@ -48,7 +50,7 @@ var isHapBanh = false;
 var stepBanhBao;
 
 //Info canvas
-var loadingScreen = document.getElementById('loading-screen');
+var loadingScreen = document.getElementById("loading-screen");
 const canvas = document.getElementById("number");
 const ctx = canvas.getContext("2d");
 const x = 32;
@@ -86,7 +88,7 @@ var chucnang = [
 	"Chế độ lên men",
 	"Chế độ đối lưu (Với cách này, toàn bộ bề mặt thức ăn được nhận năng lượng nhiệt cùng một lúc. Ví dụ: luộc rau, chiên cá ngập dầu, đồ xôi. Khi luộc rau, bạn nên luộc với nhiều nước cho ngập rau, vì rau phải được nước bao bọc hoàn toàn thì mới chín đều được)",
 	"Chế độ hầm bằng phương pháp đối lưu ",
-	"Chế độ Menu tự động"
+	"Chế độ Menu tự động",
 ];
 
 //Tao nhiet do
@@ -98,15 +100,18 @@ function init() {
 	const container = document.getElementById("container");
 	clock = new THREE.Clock();
 
+	
+	
 	scene = new THREE.Scene();
-	scene.background = new THREE.Color(0xa0a0a0);
-	scene.fog = new THREE.Fog(0xa0a0a0, 10, 50);
+	// scene.environment = pmremGenerator.fromScene( new RoomEnvironment() ).texture;
+	// scene.background = new THREE.Color(0xeeeeee);
+	// scene.fog = new THREE.Fog(0xeeeeee, 10, 50);
 
 	const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444);
-	hemiLight.position.set(0, 20, 0);
+	hemiLight.position.set(0, 0, 0);
 	scene.add(hemiLight);
 
-	const dirLight = new THREE.DirectionalLight(0xa0a0a0, 0.5);
+	const dirLight = new THREE.DirectionalLight(0xffffff);
 	dirLight.position.set(3, 10, 10);
 	dirLight.castShadow = true;
 	dirLight.shadow.camera.top = 2;
@@ -121,20 +126,16 @@ function init() {
 	dirLight2.position.set(3, 10, -10);
 	dirLight2.castShadow = false;
 	//dirLight2.position.multiplyScalar(100);
-	scene.add(dirLight2);
+	//scene.add(dirLight2);
 
 	// ground
 
-	mesh = new THREE.Mesh(
-		new THREE.PlaneGeometry(100, 100),
-		new THREE.MeshPhongMaterial({
-			color: new THREE.Color("rgb(255, 255, 255)"),
-			depthWrite: false,
-		})
-	);
-	mesh.rotation.x = -Math.PI / 2;
-	mesh.receiveShadow = true;
-	scene.add(mesh);
+	var grid = new THREE.GridHelper( 100, 40, 0x000000, 0x000000 );
+				grid.material.opacity = 0.1;
+				grid.material.depthWrite = false;
+				grid.material.transparent = true;
+				scene.add( grid );
+
 
 	const numberTexture = new THREE.CanvasTexture(
 		document.querySelector("#number")
@@ -152,22 +153,22 @@ function init() {
 	sprite.scale.set(0.2, 0.2, 0.2);
 
 	//scene.add(sprite);
-	scene.add(new THREE.AxesHelper(500));
+	//scene.add(new THREE.AxesHelper(500));
 
 	var textureLCD = new THREE.TextureLoader().load("textures/lo/LCD.png");
 
 	var manager = new THREE.LoadingManager();
-    manager.onProgress = function (item, loaded, total) {
-        //console.log(item, loaded, total);
-    };
-    manager.onLoad = function () {
-        loadingScreen.classList.add('fade-out');
-        // optional: remove loader from DOM via event listener 
-        loadingScreen.addEventListener('transitionend', onTransitionEnd);
-    };
-    manager.onError = function () {
-        //console.log('there has been an error');
-    };
+	manager.onProgress = function (item, loaded, total) {
+		//console.log(item, loaded, total);
+	};
+	manager.onLoad = function () {
+		loadingScreen.classList.add("fade-out");
+		// optional: remove loader from DOM via event listener
+		loadingScreen.addEventListener("transitionend", onTransitionEnd);
+	};
+	manager.onError = function () {
+		//console.log('there has been an error');
+	};
 
 	const loader = new GLTFLoader(manager);
 	loader.load("models/gltf/NU-SC180B_Anim_2.glb", function (gltf) {
@@ -206,8 +207,6 @@ function init() {
 	// 	linejoin:  'round' //ignored by WebGLRenderer
 	// } ));
 	// scene.add(tracker);
-
-
 
 	const loaderBanh = new FBXLoader();
 	loaderBanh.load("models/fbx/Banhbao.fbx", function (object) {
@@ -281,7 +280,7 @@ function init() {
 	nhietdo = new THREE.Mesh(sphereGeo, nhietDoMaterial);
 	nhietdo.position.set(0, 0.5, 0);
 	nhietdo.scale.set(0.1, 0.1, 0.1);
-	scene.add(nhietdo);
+	//scene.add(nhietdo);
 
 	renderer = new THREE.WebGLRenderer();
 	renderer.setPixelRatio(window.devicePixelRatio);
@@ -290,6 +289,11 @@ function init() {
 	renderer.shadowMap.enabled = true;
 	renderer.setAnimationLoop(render);
 	container.appendChild(renderer.domElement);
+
+	const pmremGenerator = new THREE.PMREMGenerator( renderer );
+	scene.environment = pmremGenerator.fromScene( new RoomEnvironment() ).texture;
+	scene.background = new THREE.Color(0xeeeeee);
+	scene.fog = new THREE.Fog(0xeeeeee, 10, 50);
 
 	// camera
 	camera = new THREE.PerspectiveCamera(
@@ -722,15 +726,20 @@ window.MoCua = function MoCua() {
 window.DongCua = function DongCua() {
 	if (actionMC != null) {
 		actionMC.stop();
+		console.log("co anim");
 	}
 
-	setTimeout(() => {
-		controls.enabled = true;
-	}, 1000);
+	console.log("Dong cua");
+	timeouts.push(
+		setTimeout(() => {
+			controls.enabled = true;
+		}, 3000)
+	);
 	isClose = true;
 	actionDC = mixer.clipAction(animations[2]);
 	actionDC.timeScale = 0.3;
 	actionDC.setLoop(THREE.LoopOnce);
+	actionDC.clampWhenFinished = true;
 	actionDC.enable = true;
 
 	actionDC.play().reset();
@@ -741,9 +750,16 @@ window.CloseFucntion = function CloseFucntion() {
 		DongCua();
 	} else {
 	}
-
+	for (var i = 0; i < timeouts.length; i++) {
+		clearTimeout(timeouts[i]);
+	}
+	document.getElementById("fucntion").innerHTML = "Panasonic";
+	document.getElementById("step").innerHTML = "";
+	document.getElementById("content").innerHTML = "NU-SC180B";
+	scene.remove(nhietdo);
 	gaModel.position.set(0, 0.5277480372311415, 1);
 	scene.remove(gaModel);
+	scene.remove(controlObj);
 	groupBanh.position.set(0, 0.55, 1);
 	scene.remove(groupBanh);
 	groupBanh = new THREE.Group();
@@ -760,8 +776,12 @@ window.CloseFucntion = function CloseFucntion() {
 		controls.enabled = !event.value;
 	});
 
-	isNuongGa = false;
 	isHapBanh = false;
+	stepBanhBao = 0;
+	canSelect = false;
+	canSetTime = false;
+	isSelectFunction = false;
+	isSetTime = false;
 };
 
 window.NuongGa = function NuongGa(value) {
@@ -770,14 +790,16 @@ window.NuongGa = function NuongGa(value) {
 		case 1:
 			stepNuongGa = 1;
 			MoCua();
-			setTimeout(() => {
-				scene.add(gaModel);
-				controlObj.attach(gaModel);
-				scene.add(controlObj);
-			}, 3000);
+			timeouts.push(
+				setTimeout(() => {
+					scene.add(gaModel);
+					controlObj.attach(gaModel);
+					scene.add(controlObj);
+				}, 3000)
+			);
 			document.getElementById("fucntion").innerHTML = "Nướng Gà";
 			document.getElementById("step").innerHTML = "Bước 1";
-			document.getElementById("content").innerHTML = "Cho gà vào lồi";
+			document.getElementById("content").innerHTML = "Cho gà vào lò và đóng cửa";
 			break;
 		case 2:
 			console.log("next");
@@ -786,8 +808,8 @@ window.NuongGa = function NuongGa(value) {
 			document.getElementById("step").innerHTML = "Bước 2";
 			document.getElementById("content").innerHTML =
 				"Điều chỉnh bảng và chọn chức năng nướng";
-			//DongCua();
-			isClose = true;
+			DongCua();
+			//isClose = true;
 			controlObj.enabled = false;
 			scene.remove(controlObj);
 			controls.enable = true;
@@ -799,9 +821,9 @@ window.NuongGa = function NuongGa(value) {
 			console.log("next");
 			stepNuongGa = 3;
 			document.getElementById("fucntion").innerHTML = "Nướng Gà";
-			document.getElementById("step").innerHTML = "Bước 3";
-			document.getElementById("content").innerHTML = "Chọn chế độ của lò";
-			DongCua();
+			document.getElementById("step").innerHTML = "Bước 2";
+			document.getElementById("content").innerHTML = "Chọn chế độ phù hợp";
+			//DongCua();
 			isClose = true;
 
 			canSelect = true;
@@ -819,17 +841,19 @@ window.BanhBao = function BanhBao(value) {
 			MoCua();
 			document.getElementById("fucntion").innerHTML = "Bánh Bao";
 			document.getElementById("content").innerHTML = "Cho bánh bao vào lò";
-			setTimeout(() => {
-				scene.add(banhModel1);
-				scene.add(banhModel2);
-				scene.add(banhModel3);
-				groupBanh.add(banhModel1),
-					groupBanh.add(banhModel2),
-					groupBanh.add(banhModel3),
-					controlObj.attach(groupBanh);
-				//controlObj.attach(banhModel2);
-				scene.add(controlObj);
-			}, 3000);
+			timeouts.push(
+				setTimeout(() => {
+					scene.add(banhModel1);
+					scene.add(banhModel2);
+					scene.add(banhModel3);
+					groupBanh.add(banhModel1),
+						groupBanh.add(banhModel2),
+						groupBanh.add(banhModel3),
+						controlObj.attach(groupBanh);
+					//controlObj.attach(banhModel2);
+					scene.add(controlObj);
+				}, 3000)
+			);
 			break;
 		case 2:
 			console.log("next 2");
@@ -851,7 +875,7 @@ window.BanhBao = function BanhBao(value) {
 			document.getElementById("step").innerHTML = "Bước 3";
 			document.getElementById("content").innerHTML = "Chọn chế độ của lò";
 			//DongCua();
-			isClose = true;
+			//isClose = true;
 
 			canSelect = true;
 			break;
@@ -880,7 +904,7 @@ function onDocumentMouseDown(event) {
 					isSelectFunction = true;
 					document.getElementById("fucntion").innerHTML = "Chọn chế độ";
 					document.getElementById("step").innerHTML = "";
-					if (indexFunction == chucnang.length - 1 ) {
+					if (indexFunction == chucnang.length - 1) {
 						indexFunction = 0;
 					}
 					indexFunction++;
@@ -923,6 +947,8 @@ function onDocumentMouseDown(event) {
 					}
 				} else {
 					if (intersects[0].object.name == "startbutton") {
+						scene.add(nhietdo);
+
 						console.log("Lò đã bắt đầu");
 						document.getElementById("fucntion").innerHTML =
 							"Lò đã bắt đầu chạy ";
@@ -937,5 +963,5 @@ function onDocumentMouseDown(event) {
 	}
 }
 function onTransitionEnd(event) {
-    event.target.remove();
+	event.target.remove();
 }
