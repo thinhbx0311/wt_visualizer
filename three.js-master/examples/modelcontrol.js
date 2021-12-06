@@ -32,12 +32,11 @@ const additiveActions = {
 };
 let panelSettings;
 let sprite;
-var gaModel, banhModel;
+var gaModel, banhModel1, banhModel2, banhModel3, arrowModel, groupBanh;
 var displayGa = false;
 var objects = [];
 var controlObj;
 var objectsSelect = [];
-
 
 var isClose = true;
 
@@ -45,9 +44,8 @@ var isClose = true;
 var isNuongGa = false;
 var stepNuongGa;
 
-
-
 var isHapBanh = false;
+var stepBanhBao;
 
 //Info canvas
 
@@ -79,6 +77,20 @@ ctx.fillText("1", x, y);
 let spriteBehindObject;
 const annotation = document.querySelector(".annotation");
 
+//Điều khiển bếp
+var canSelect, isSelectFunction, canSetTime, isSetTime;
+var chucnang = [
+	"Chế độ hấp nhiệt độ thấp",
+	"Chế độ hấp thông thường",
+	"Chế độ chiên không dầu",
+	"Chế độ lên men",
+	"Chế độ đối lưu (Với cách này, toàn bộ bề mặt thức ăn được nhận năng lượng nhiệt cùng một lúc. Ví dụ: luộc rau, chiên cá ngập dầu, đồ xôi. Khi luộc rau, bạn nên luộc với nhiều nước cho ngập rau, vì rau phải được nước bao bọc hoàn toàn thì mới chín đều được)",
+	"Chế độ hầm bằng phương pháp đối lưu ",
+	"Chế độ Menu tự động"
+];
+
+//Tao nhiet do
+var nhietDoMaterial, nhietdo;
 init();
 loadGa();
 
@@ -116,7 +128,7 @@ function init() {
 	mesh = new THREE.Mesh(
 		new THREE.PlaneGeometry(100, 100),
 		new THREE.MeshPhongMaterial({
-			color: new THREE.Color("rgb(88,103,134)"),
+			color: new THREE.Color("rgb(255, 255, 255)"),
 			depthWrite: false,
 		})
 	);
@@ -142,6 +154,8 @@ function init() {
 	//scene.add(sprite);
 	scene.add(new THREE.AxesHelper(500));
 
+	var textureLCD = new THREE.TextureLoader().load("textures/lo/LCD.png");
+
 	const loader = new GLTFLoader();
 	loader.load("models/gltf/NU-SC180B_Anim_2.glb", function (gltf) {
 		model = gltf.scene;
@@ -151,6 +165,11 @@ function init() {
 			if (object.isMesh) object.castShadow = true;
 		});
 
+		model.getObjectByName("LCD").material = new THREE.MeshBasicMaterial({
+			map: textureLCD,
+			opacity: 1,
+			transparent: false,
+		});
 		skeleton = new THREE.SkeletonHelper(model);
 		skeleton.visible = false;
 		scene.add(skeleton);
@@ -161,15 +180,116 @@ function init() {
 		//numAnimations = animations.length;
 
 		scene.add(model);
-
 		animate();
 	});
 
-	renderer = new THREE.WebGLRenderer({ antialias: true });
+	// let tracker = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+	// 	new THREE.Vector3(0,0,0),
+	//   new THREE.Vector3(0.8,1, 0)
+	// ]), new THREE.LineBasicMaterial( {
+	// 	color: 'red',
+	// 	linewidth: 10,
+	// 	linecap: 'round', //ignored by WebGLRenderer
+	// 	linejoin:  'round' //ignored by WebGLRenderer
+	// } ));
+	// scene.add(tracker);
+
+	const loaderArrow = new FBXLoader();
+	loaderArrow.load("models/fbx/my-arrow.fbx", function (object) {
+		arrowModel = object.children[0];
+		arrowModel.position.set(0.9, 0.65, 0);
+		arrowModel.scale.set(0.07, 0.01, 0.07);
+
+		arrowModel.traverse(function (child) {
+			if (child.isMesh) {
+				//child.material.map = texture;
+				//child.material.needsUpdate = true;
+				child.castShadow = true;
+				//scene.add(arrowModel);
+			}
+		});
+	});
+
+	const loaderBanh = new FBXLoader();
+	loaderBanh.load("models/fbx/Banhbao.fbx", function (object) {
+		banhModel1 = object.children[0];
+		banhModel1.position.set(0, 0, 0);
+		banhModel1.scale.set(0.1, 0.1, 0.1);
+
+		// banhModel2 = object.children[0];
+		// banhModel2.position.set(0.3, 0.55, 1);
+		// banhModel2.scale.set(0.1, 0.1, 0.1);
+		//scene.add(banhModel2);
+
+		banhModel1.traverse(function (child) {
+			if (child.isMesh) {
+				//child.material.map = texture;
+				//child.material.needsUpdate = true;
+				child.castShadow = true;
+			}
+		});
+		//scene.add(banhModel);
+	});
+	const loaderBanh2 = new FBXLoader();
+	loaderBanh2.load("models/fbx/Banhbao.fbx", function (object) {
+		banhModel2 = object.children[0];
+		//banhModel2.position.set(0.3, 0.55, 1);
+		banhModel2.position.set(0.3, 0, 0);
+		banhModel2.scale.set(0.1, 0.1, 0.1);
+		//scene.add(banhModel2);
+
+		banhModel2.traverse(function (child) {
+			if (child.isMesh) {
+				//child.material.map = texture;
+				//child.material.needsUpdate = true;
+				child.castShadow = true;
+			}
+		});
+		//scene.add(banhModel);
+	});
+	const loaderBanh3 = new FBXLoader();
+	loaderBanh3.load("models/fbx/Banhbao.fbx", function (object) {
+		banhModel3 = object.children[0];
+		//banhModel2.position.set(0.3, 0.55, 1);
+		banhModel3.position.set(-0.3, 0, 0);
+		banhModel3.scale.set(0.1, 0.1, 0.1);
+		//scene.add(banhModel2);
+
+		banhModel3.traverse(function (child) {
+			if (child.isMesh) {
+				//child.material.map = texture;
+				//child.material.needsUpdate = true;
+				child.castShadow = true;
+			}
+		});
+		//scene.add(banhModel);
+	});
+
+	groupBanh = new THREE.Group();
+	groupBanh.position.set(0, 0.55, 1);
+	scene.add(groupBanh);
+
+	//Quả cầu nhiệt độ
+	nhietDoMaterial = new THREE.MeshPhongMaterial({
+		color: 0xffe100,
+		specular: 0xffe100,
+		emissive: 0xffe100,
+		shininess: 2,
+		opacity: 0.3,
+		transparent: true,
+	});
+	const sphereGeo = new THREE.SphereGeometry(4, 32, 16);
+	nhietdo = new THREE.Mesh(sphereGeo, nhietDoMaterial);
+	nhietdo.position.set(0, 0.5, 0);
+	nhietdo.scale.set(0.1, 0.1, 0.1);
+	scene.add(nhietdo);
+
+	renderer = new THREE.WebGLRenderer();
 	renderer.setPixelRatio(window.devicePixelRatio);
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.outputEncoding = THREE.sRGBEncoding;
 	renderer.shadowMap.enabled = true;
+	renderer.setAnimationLoop(render);
 	container.appendChild(renderer.domElement);
 
 	// camera
@@ -183,7 +303,7 @@ function init() {
 
 	controls = new OrbitControls(camera, renderer.domElement);
 	controls.enablePan = false;
-	controls.enableZoom = false;
+	controls.enableZoom = true;
 	controls.target.set(0, 1, 0);
 	controls.update();
 
@@ -191,7 +311,7 @@ function init() {
 	controlObj.showZ = true;
 	controlObj.showY = false;
 	controlObj.showX = false;
-	controlObj.addEventListener("change", render);
+	//controlObj.addEventListener("change", render);
 
 	controlObj.addEventListener("dragging-changed", function (event) {
 		controls.enabled = !event.value;
@@ -205,6 +325,7 @@ function init() {
 
 function loadGa() {
 	var texture = new THREE.TextureLoader().load("textures/ga/ga.png");
+
 	// model
 	const loader = new FBXLoader();
 	loader.load("models/fbx/ga.fbx", function (object) {
@@ -221,41 +342,51 @@ function loadGa() {
 		});
 
 		const geometry = new THREE.SphereGeometry(2, 32, 16);
-		const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+		const material = new THREE.MeshPhysicalMaterial({
+			color: 0xffffff,
+			metalness: 1,
+			roughness: 0,
+			ior: 1.5,
+			envMapIntensity: 1,
+			transmission: 1, // use material.transmission for glass materials
+			specularIntensity: 1,
+			specularColor: 0xffffff,
+			opacity: 0,
+			side: THREE.DoubleSide,
+			transparent: true,
+		});
 		const startButton = new THREE.Mesh(geometry, material);
-		startButton.position.set(0.42,0.29,0.53);
-		startButton.scale.set(0.01,0.01,0.01);
-		scene.add(startButton)
+		startButton.position.set(0.42, 0.29, 0.53);
+		startButton.scale.set(0.01, 0.01, 0.01);
+		scene.add(startButton);
 		startButton.name = "startbutton";
 		objectsSelect.push(startButton);
 
 		const plusButton = new THREE.Mesh(geometry, material);
-		plusButton.position.set(0.35,0.29,0.53);
-		plusButton.scale.set(0.01,0.01,0.01);
-		scene.add(plusButton)
+		plusButton.position.set(0.35, 0.29, 0.53);
+		plusButton.scale.set(0.01, 0.01, 0.01);
+		scene.add(plusButton);
 		plusButton.name = "plusbutton";
 		objectsSelect.push(plusButton);
 
 		const minusButton = new THREE.Mesh(geometry, material);
-		minusButton.position.set(0.27,0.29,0.53);
-		minusButton.scale.set(0.01,0.01,0.01);
-		scene.add(minusButton)
+		minusButton.position.set(0.27, 0.29, 0.53);
+		minusButton.scale.set(0.01, 0.01, 0.01);
+		scene.add(minusButton);
 		minusButton.name = "minusbutton";
 		objectsSelect.push(minusButton);
 
 		const restartButton = new THREE.Mesh(geometry, material);
-		restartButton.position.set(0.19,0.29,0.53);
-		restartButton.scale.set(0.01,0.01,0.01);
-		scene.add(restartButton)
+		restartButton.position.set(0.19, 0.29, 0.53);
+		restartButton.scale.set(0.01, 0.01, 0.01);
+		scene.add(restartButton);
 		restartButton.name = "restartbutton";
 		objectsSelect.push(restartButton);
 
-		window.addEventListener('keydown', function (event) {
-
+		window.addEventListener("keydown", function (event) {
 			switch (event.keyCode) {
-
 				case 81: // Q
-					controlObj.setSpace(controlObj.space === 'local' ? 'world' : 'local');
+					controlObj.setSpace(controlObj.space === "local" ? "world" : "local");
 					console.log(gaModel.position);
 					break;
 
@@ -266,23 +397,21 @@ function loadGa() {
 					break;
 
 				case 87: // W
-					controlObj.setMode('translate');
+					controlObj.setMode("translate");
 					break;
 
 				case 69: // E
-					controlObj.setMode('rotate');
+					controlObj.setMode("rotate");
 					break;
 
 				case 82: // R
-					controlObj.setMode('scale');
+					controlObj.setMode("scale");
 					break;
 
 				case 67: // C
-
 					break;
 
 				case 86: // V
-
 					break;
 				case 187:
 				case 107: // +, =, num+
@@ -309,25 +438,19 @@ function loadGa() {
 				case 32: // Spacebar
 					controlObj.enabled = !controlObj.enabled;
 					break;
-
 			}
-
 		});
 
-		window.addEventListener('keyup', function (event) {
-
+		window.addEventListener("keyup", function (event) {
 			switch (event.keyCode) {
-
 				case 16: // Shift
 					control.setTranslationSnap(null);
 					control.setRotationSnap(null);
 					control.setScaleSnap(null);
 					break;
-
 			}
-
 		});
-		document.addEventListener('mousedown', onDocumentMouseDown);
+		document.addEventListener("mousedown", onDocumentMouseDown);
 	});
 }
 
@@ -505,27 +628,58 @@ function animate() {
 
 	stats.update();
 
-	renderer.render(scene, camera);
+	//renderer.render(scene, camera);
 	updateAnnotationOpacity();
 	updateScreenPosition();
+
+	//model.rotation.x += 0.01;
+	//arrowModel.rotation.y += 0.01;
 	//update();
-	if (gaModel.position.z < 0.2 && isClose == false && isNuongGa == true && stepNuongGa == 1) {
+
+	if (
+		gaModel.position.z < 0.1 &&
+		isClose == false &&
+		isNuongGa == true &&
+		stepNuongGa == 1
+	) {
 		isClose = true;
 		//DongCua();
 		controlObj.showZ = false;
 		controlObj.enabled = false;
+
 		NuongGa(2);
 	}
 	if (isClose && isNuongGa && stepNuongGa == 2) {
 		NuongGa(3);
-
 	}
+
+	if (
+		groupBanh.position.z < 0.1 &&
+		isClose == false &&
+		isHapBanh == true &&
+		stepBanhBao == 1
+	) {
+		isClose = true;
+		controlObj.showZ = false;
+		controlObj.enabled = false;
+		console.log("ok");
+		BanhBao(2);
+	}
+
+	if (isClose && isHapBanh && stepBanhBao == 2) {
+		BanhBao(3);
+	}
+	render();
 }
 
 function render() {
-
 	renderer.render(scene, camera);
+	const timer = 0.0001 * Date.now();
 
+	nhietdo.rotation.x += 0.01;
+	nhietdo.rotation.y += 0.005;
+
+	nhietDoMaterial.opacity = 0.3 * Math.sin(10 * timer);
 }
 
 function updateAnnotationOpacity() {
@@ -536,7 +690,7 @@ function updateAnnotationOpacity() {
 }
 
 function updateScreenPosition() {
-	const vector = new THREE.Vector3(0.8, 0.5, 0);
+	const vector = new THREE.Vector3(0.7, 1.1, 0.5);
 	const canvas = renderer.domElement;
 
 	vector.project(camera);
@@ -570,6 +724,10 @@ window.DongCua = function DongCua() {
 	if (actionMC != null) {
 		actionMC.stop();
 	}
+
+	setTimeout(() => {
+		controls.enabled = true;
+	}, 1000);
 	isClose = true;
 	actionDC = mixer.clipAction(animations[2]);
 	actionDC.timeScale = 0.3;
@@ -580,19 +738,32 @@ window.DongCua = function DongCua() {
 };
 
 window.CloseFucntion = function CloseFucntion() {
-
 	if (!isClose) {
 		DongCua();
-
 	} else {
-
-
 	}
-	scene.remove(controlObj);
+
+	gaModel.position.set(0, 0.5277480372311415, 1);
 	scene.remove(gaModel);
+	groupBanh.position.set(0, 0.55, 1);
+	scene.remove(groupBanh);
+	groupBanh = new THREE.Group();
+	groupBanh.position.set(0, 0.55, 1);
+	scene.add(groupBanh);
+	isClose = false;
+	isNuongGa = false;
+	stepNuongGa = 0;
+	controlObj = new TransformControls(camera, renderer.domElement);
+	controlObj.showZ = true;
+	controlObj.showY = false;
+	controlObj.showX = false;
+	controlObj.addEventListener("dragging-changed", function (event) {
+		controls.enabled = !event.value;
+	});
+
 	isNuongGa = false;
 	isHapBanh = false;
-}
+};
 
 window.NuongGa = function NuongGa(value) {
 	isNuongGa = true;
@@ -600,14 +771,10 @@ window.NuongGa = function NuongGa(value) {
 		case 1:
 			stepNuongGa = 1;
 			MoCua();
-			//controls.enableRotate = false;
-			//scene.add(sprite);
 			setTimeout(() => {
-
 				scene.add(gaModel);
 				controlObj.attach(gaModel);
 				scene.add(controlObj);
-
 			}, 3000);
 			document.getElementById("fucntion").innerHTML = "Nướng Gà";
 			document.getElementById("step").innerHTML = "Bước 1";
@@ -618,22 +785,27 @@ window.NuongGa = function NuongGa(value) {
 			stepNuongGa = 2;
 			document.getElementById("fucntion").innerHTML = "Nướng Gà";
 			document.getElementById("step").innerHTML = "Bước 2";
-			document.getElementById("content").innerHTML = "Điều chỉnh bảng và chọn chức năng nướng";
-			DongCua();
+			document.getElementById("content").innerHTML =
+				"Điều chỉnh bảng và chọn chức năng nướng";
+			//DongCua();
 			isClose = true;
-			controlObj.enabled = true;
-			camera.position.set(2, 1, 0.7);
-			controls.target.set(0, 0, 0);
+			controlObj.enabled = false;
+			scene.remove(controlObj);
+			controls.enable = true;
+
+			//	camera.position.set(2, 1, 0.7); // set camera sau khi bo ga vao
+			//controls.target.set(0, 0, 0);
 			break;
 		case 3:
 			console.log("next");
 			stepNuongGa = 3;
 			document.getElementById("fucntion").innerHTML = "Nướng Gà";
 			document.getElementById("step").innerHTML = "Bước 3";
-			document.getElementById("content").innerHTML = "chojn";
+			document.getElementById("content").innerHTML = "Chọn chế độ của lò";
 			DongCua();
 			isClose = true;
-			controlObj.enabled = true;
+
+			canSelect = true;
 			break;
 		default:
 			console.log(value);
@@ -641,36 +813,127 @@ window.NuongGa = function NuongGa(value) {
 };
 
 window.BanhBao = function BanhBao(value) {
+	isHapBanh = true;
 	switch (value) {
 		case 1:
+			stepBanhBao = 1;
 			MoCua();
 			document.getElementById("fucntion").innerHTML = "Bánh Bao";
 			document.getElementById("content").innerHTML = "Cho bánh bao vào lò";
+			setTimeout(() => {
+				scene.add(banhModel1);
+				scene.add(banhModel2);
+				scene.add(banhModel3);
+				groupBanh.add(banhModel1),
+					groupBanh.add(banhModel2),
+					groupBanh.add(banhModel3),
+					controlObj.attach(groupBanh);
+				//controlObj.attach(banhModel2);
+				scene.add(controlObj);
+			}, 3000);
 			break;
 		case 2:
-			console.log(value);
+			console.log("next 2");
+			stepBanhBao = 2;
+			document.getElementById("fucntion").innerHTML = "Banh bao";
+			document.getElementById("step").innerHTML = "Bước 2";
+			document.getElementById("content").innerHTML =
+				"Điều chỉnh bảng và chọn chức năng nướng";
+			DongCua();
+			isClose = true;
+			controlObj.enabled = false;
+			scene.remove(controlObj);
+			controls.enable = true;
+			break;
+		case 3:
+			console.log("next 3");
+			stepBanhBao = 3;
+			document.getElementById("fucntion").innerHTML = "Bánh bao";
+			document.getElementById("step").innerHTML = "Bước 3";
+			document.getElementById("content").innerHTML = "Chọn chế độ của lò";
+			//DongCua();
+			isClose = true;
+
+			canSelect = true;
 			break;
 		default:
 			console.log(value);
 	}
 };
 
+var indexFunction = -1;
 function onDocumentMouseDown(event) {
 	event.preventDefault();
-	var mouse3D = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1,
+	var mouse3D = new THREE.Vector3(
+		(event.clientX / window.innerWidth) * 2 - 1,
 		-(event.clientY / window.innerHeight) * 2 + 1,
-		0.5);
+		0.5
+	);
 	var raycaster = new THREE.Raycaster();
 	raycaster.setFromCamera(mouse3D, camera);
 	var intersects = raycaster.intersectObjects(objectsSelect);
-	if (intersects[0] != null){
-		if (intersects[0].object.name == "startbutton"){
-			console.log("start");
-		}
-		else if (intersects[0].object.name == "plusbutton"){
-			console.log("plus");
+	if (intersects[0] != null) {
+		if (canSelect) {
+			console.log("can select");
+			if (!canSetTime) {
+				if (intersects[0].object.name == "plusbutton") {
+					console.log("Chọn chế độ");
+					isSelectFunction = true;
+					document.getElementById("fucntion").innerHTML = "Chọn chế độ";
+					document.getElementById("step").innerHTML = "";
+					if (indexFunction == chucnang.length - 1 ) {
+						indexFunction = 0;
+					}
+					indexFunction++;
+					document.getElementById("content").innerHTML =
+						chucnang[indexFunction];
+				}
+				if (intersects[0].object.name == "minusbutton") {
+					console.log("Chọn chế độ");
+					isSelectFunction = true;
+					document.getElementById("fucntion").innerHTML = "Chọn chế độ";
+					document.getElementById("step").innerHTML = "";
+					if (indexFunction == 0) {
+						indexFunction = chucnang.length - 1;
+					}
+					indexFunction = indexFunction - 1;
+					document.getElementById("content").innerHTML =
+						chucnang[indexFunction];
+				}
+			} else {
+				if (intersects[0].object.name == "plusbutton") {
+					console.log("Chọn thời gian");
+					isSelectFunction = true;
+					document.getElementById("fucntion").innerHTML = "Chọn thời gian";
+					document.getElementById("step").innerHTML = "";
+					document.getElementById("content").innerHTML =
+						"chucnang[indexFunction]";
+					isSetTime = true;
+				}
+			}
+
+			if (isSelectFunction) {
+				if (!isSetTime) {
+					if (intersects[0].object.name == "startbutton") {
+						console.log("Chọn thời gian");
+						document.getElementById("fucntion").innerHTML = "Chọn thời gian";
+						document.getElementById("step").innerHTML = "";
+						document.getElementById("content").innerHTML =
+							"Chọn thời gian thích hợp";
+						canSetTime = true;
+					}
+				} else {
+					if (intersects[0].object.name == "startbutton") {
+						console.log("Lò đã bắt đầu");
+						document.getElementById("fucntion").innerHTML =
+							"Lò đã bắt đầu chạy ";
+						document.getElementById("step").innerHTML = "";
+						document.getElementById("content").innerHTML =
+							"Vui lòng đợi trong giây lát";
+						canSetTime = true;
+					}
+				}
+			}
 		}
 	}
 }
-
-
