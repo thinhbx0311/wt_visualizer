@@ -48,7 +48,7 @@ var isHapBanh = false;
 var stepBanhBao;
 
 //Info canvas
-
+var loadingScreen = document.getElementById('loading-screen');
 const canvas = document.getElementById("number");
 const ctx = canvas.getContext("2d");
 const x = 32;
@@ -156,7 +156,20 @@ function init() {
 
 	var textureLCD = new THREE.TextureLoader().load("textures/lo/LCD.png");
 
-	const loader = new GLTFLoader();
+	var manager = new THREE.LoadingManager();
+    manager.onProgress = function (item, loaded, total) {
+        //console.log(item, loaded, total);
+    };
+    manager.onLoad = function () {
+        loadingScreen.classList.add('fade-out');
+        // optional: remove loader from DOM via event listener 
+        loadingScreen.addEventListener('transitionend', onTransitionEnd);
+    };
+    manager.onError = function () {
+        //console.log('there has been an error');
+    };
+
+	const loader = new GLTFLoader(manager);
 	loader.load("models/gltf/NU-SC180B_Anim_2.glb", function (gltf) {
 		model = gltf.scene;
 		model.scale.set(3, 3, 3);
@@ -936,4 +949,7 @@ function onDocumentMouseDown(event) {
 			}
 		}
 	}
+}
+function onTransitionEnd(event) {
+    event.target.remove();
 }
