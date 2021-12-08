@@ -253,7 +253,7 @@ function init() {
 	});
 
 	const loaderKhayDuoi = new GLTFLoader();
-	loaderKhayDuoi.load("models/gltf/khay.gltf", function (gltf) {
+	loaderKhayDuoi.load("models/gltf/Khay Final final final.gltf", function (gltf) {
 		gltf.scene.children[2].material = new THREE.MeshPhongMaterial({
 			color: 0xffffff,
 			specular: 0xffffff,
@@ -1207,7 +1207,7 @@ window.NuongGa = function NuongGa(value) {
 		case 3:
 			stepNuongGa = 3;
 			document.getElementById("fucntion").innerHTML = "Nướng Gà";
-			document.getElementById("step").innerHTML = "";
+			document.getElementById("step").innerHTML = "Khi nướng gà, nên chọn chế độ 'Healthy Fry - Chiên không dầu'";
 			document.getElementById("content").innerHTML =
 				"Bấm 'SELECT' đẻ chọn chế độ của lò";
 			//DongCua();
@@ -1265,7 +1265,7 @@ window.BanhBao = function BanhBao(value) {
 		case 3:
 			stepBanhBao = 3;
 			document.getElementById("fucntion").innerHTML = "Hấp Bánh Bao";
-			document.getElementById("step").innerHTML = "";
+			document.getElementById("step").innerHTML = "Khi hấp bánh bao, nên chọn chế độ 'Steam Low - Hấp với nhiệt độ thấp' hoặc 'Stew - Hấp thông thường'";
 			document.getElementById("content").innerHTML =
 				"Bấm 'SELECT' đẻ chọn chế độ của lò";
 			//DongCua();

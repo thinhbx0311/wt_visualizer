@@ -188,8 +188,14 @@ a, button, input, select {
 	z-index: 1;
   }
   
+  h1 {
+    font-size: 40px;
+  }
+  p {
+    font-size: 20px;
+  }
   .info h1 {
-	font-size: 2rem;
+	font-size: 4rem;
 	transition: all 0.75s ease-out;
 	text-align: center;
   }
@@ -641,7 +647,7 @@ canvas {
     margin-left: 15px;
     margin-top: 15px;
     padding: 1em;
-    width: 200px;
+    width: 400px;
     color: #fff;
     background: rgba(0, 0, 0, 0.8);
     border-radius: .5em;
