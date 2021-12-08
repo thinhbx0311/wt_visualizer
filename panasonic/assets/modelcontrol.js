@@ -856,7 +856,7 @@ function animate() {
 		isOpenKhay = false;
 		controlKhay.showZ = false;
 		controlKhay.enabled = false;
-		//scene.remove(controlKhay);
+		scene.remove(controlKhay);
 		groupKhay.position.set(0, 0, -0.2);
 	}
 
@@ -1207,7 +1207,7 @@ window.NuongGa = function NuongGa(value) {
 		case 3:
 			stepNuongGa = 3;
 			document.getElementById("fucntion").innerHTML = "Nướng Gà";
-			document.getElementById("step").innerHTML = "Khi nướng gà, nên chọn chế độ 'Healthy Fry - Chiên không dầu'";
+			document.getElementById("step").innerHTML = "Khi nướng gà, nên chọn chế độ <br /> 'Healthy Fry - Chiên không dầu'";
 			document.getElementById("content").innerHTML =
 				"Bấm 'SELECT' đẻ chọn chế độ của lò";
 			//DongCua();
@@ -1265,7 +1265,7 @@ window.BanhBao = function BanhBao(value) {
 		case 3:
 			stepBanhBao = 3;
 			document.getElementById("fucntion").innerHTML = "Hấp Bánh Bao";
-			document.getElementById("step").innerHTML = "Khi hấp bánh bao, nên chọn chế độ 'Steam Low - Hấp với nhiệt độ thấp' hoặc 'Stew - Hấp thông thường'";
+			document.getElementById("step").innerHTML = "Khi hấp bánh bao, nên chọn chế độ <br />'Steam Low - Hấp với nhiệt độ thấp' <br /> 'Stew - Hấp thông thường'";
 			document.getElementById("content").innerHTML =
 				"Bấm 'SELECT' đẻ chọn chế độ của lò";
 			//DongCua();
