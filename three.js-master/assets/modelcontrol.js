@@ -6,7 +6,7 @@ import { OrbitControls } from "./jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "./jsm/loaders/GLTFLoader.js";
 import { FBXLoader } from "./jsm/loaders/FBXLoader.js";
 import { TransformControls } from "./jsm/controls/TransformControls.js";
-import { RoomEnvironment } from './jsm/environments/RoomEnvironment.js';
+import { RoomEnvironment } from "./jsm/environments/RoomEnvironment.js";
 
 let scene, renderer, camera, stats, mesh;
 let model, skeleton, mixer, clock, controls;
@@ -34,11 +34,11 @@ const additiveActions = {
 };
 let panelSettings;
 let sprite;
-var gaModel, banhModel1, banhModel2, banhModel3, arrowModel, groupBanh;
-var displayGa = false;
-var objects = [];
-var controlObj;
+var gaModel, banhModel1, banhModel2, banhModel3, groupBanh;
+var controlGaObj , controlBanhObj;
 var objectsSelect = [];
+var lcd;
+var smokeParticles = [];
 
 var isClose = true;
 
@@ -93,19 +93,38 @@ var chucnang = [
 
 //Tao nhiet do
 var nhietDoMaterial, nhietdo;
+// Tao hoi nuoc
+var groupHoiNuoc;
+
+var textureLCD = new THREE.TextureLoader().load("textures/LCD/normal.png");
+var textureLCD00 = new THREE.TextureLoader().load("textures/LCD/0.png");
+var textureLCD01 = new THREE.TextureLoader().load("textures/LCD/1.png");
+var textureLCD02 = new THREE.TextureLoader().load("textures/LCD/2.png");
+var textureLCD03 = new THREE.TextureLoader().load("textures/LCD/3.png");
+var textureLCD04 = new THREE.TextureLoader().load("textures/LCD/4.png");
+var textureLCD05 = new THREE.TextureLoader().load("textures/LCD/5.png");
+var textureLCD06 = new THREE.TextureLoader().load("textures/LCD/6.png");
+var textureLCD07 = new THREE.TextureLoader().load("textures/LCD/7.png");
+
+//Time
+var defaultTime = new THREE.TextureLoader().load("textures/Time Textures/0.png");
+var timeTextures = [	
+	new THREE.TextureLoader().load("textures/Time Textures/1.png"),
+	new THREE.TextureLoader().load("textures/Time Textures/2.png"),
+	new THREE.TextureLoader().load("textures/Time Textures/3.png"),
+	new THREE.TextureLoader().load("textures/Time Textures/4.png"),
+	new THREE.TextureLoader().load("textures/Time Textures/5.png"),
+	new THREE.TextureLoader().load("textures/Time Textures/6.png"),
+	new THREE.TextureLoader().load("textures/Time Textures/7.png"),
+	new THREE.TextureLoader().load("textures/Time Textures/8.png"),
+];
 init();
 loadGa();
 
 function init() {
 	const container = document.getElementById("container");
 	clock = new THREE.Clock();
-
-	
-	
 	scene = new THREE.Scene();
-	// scene.environment = pmremGenerator.fromScene( new RoomEnvironment() ).texture;
-	// scene.background = new THREE.Color(0xeeeeee);
-	// scene.fog = new THREE.Fog(0xeeeeee, 10, 50);
 
 	const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444);
 	hemiLight.position.set(0, 0, 0);
@@ -125,17 +144,35 @@ function init() {
 	dirLight2 = new THREE.DirectionalLight(0xffffff);
 	dirLight2.position.set(3, 10, -10);
 	dirLight2.castShadow = false;
-	//dirLight2.position.multiplyScalar(100);
-	//scene.add(dirLight2);
 
 	// ground
 
-	var grid = new THREE.GridHelper( 100, 40, 0x000000, 0x000000 );
-				grid.material.opacity = 0.1;
-				grid.material.depthWrite = false;
-				grid.material.transparent = true;
-				scene.add( grid );
+	var grid = new THREE.GridHelper(100, 40, 0x000000, 0x000000);
+	grid.material.opacity = 0.1;
+	grid.material.depthWrite = false;
+	grid.material.transparent = true;
+	scene.add(grid);
 
+	const mesh = new THREE.Mesh(
+		new THREE.PlaneGeometry(100, 100),
+		new THREE.MeshPhongMaterial({ color: 0x999999, depthWrite: false })
+	);
+	mesh.rotation.x = -Math.PI / 2;
+	mesh.receiveShadow = true;
+	scene.add(mesh);
+
+	lcd = new THREE.Mesh(
+		new THREE.PlaneGeometry(0.3, 0.15),
+		new THREE.MeshBasicMaterial({
+			map: textureLCD,
+			opacity: 1,
+			transparent: false,
+		})
+	);
+	//lcd.rotation.x = -Math.PI / 2;
+	lcd.receiveShadow = true;
+	lcd.position.set(0, 0.3, 0.525);
+	scene.add(lcd);
 
 	const numberTexture = new THREE.CanvasTexture(
 		document.querySelector("#number")
@@ -154,8 +191,6 @@ function init() {
 
 	//scene.add(sprite);
 	//scene.add(new THREE.AxesHelper(500));
-
-	var textureLCD = new THREE.TextureLoader().load("textures/lo/LCD.png");
 
 	var manager = new THREE.LoadingManager();
 	manager.onProgress = function (item, loaded, total) {
@@ -282,6 +317,11 @@ function init() {
 	nhietdo.scale.set(0.1, 0.1, 0.1);
 	//scene.add(nhietdo);
 
+	// Hoi nuoc
+	groupHoiNuoc = new THREE.Group();
+	groupHoiNuoc.position.set(0, 0, 0.15);
+	//scene.add(groupHoiNuoc);
+
 	renderer = new THREE.WebGLRenderer();
 	renderer.setPixelRatio(window.devicePixelRatio);
 	renderer.setSize(window.innerWidth, window.innerHeight);
@@ -290,10 +330,12 @@ function init() {
 	renderer.setAnimationLoop(render);
 	container.appendChild(renderer.domElement);
 
-	const pmremGenerator = new THREE.PMREMGenerator( renderer );
-	scene.environment = pmremGenerator.fromScene( new RoomEnvironment() ).texture;
+	addParticles();
+
+	const pmremGenerator = new THREE.PMREMGenerator(renderer);
+	scene.environment = pmremGenerator.fromScene(new RoomEnvironment()).texture;
 	scene.background = new THREE.Color(0xeeeeee);
-	scene.fog = new THREE.Fog(0xeeeeee, 10, 50);
+	//scene.fog = new THREE.Fog(0xeeeeee, 10, 50);
 
 	// camera
 	camera = new THREE.PerspectiveCamera(
@@ -308,22 +350,33 @@ function init() {
 	controls.enablePan = false;
 	controls.enableZoom = true;
 	controls.target.set(0, 1, 0);
+	controls.minDistance = 2;
+	controls.maxDistance = 10;
 	controls.update();
 
-	controlObj = new TransformControls(camera, renderer.domElement);
-	controlObj.showZ = true;
-	controlObj.showY = false;
-	controlObj.showX = false;
-	//controlObj.addEventListener("change", render);
+	controlGaObj = new TransformControls(camera, renderer.domElement);
+	controlGaObj.showZ = true;
+	controlGaObj.showY = false;
+	controlGaObj.showX = false;
+	controlGaObj.addEventListener("dragging-changed", function (event) {
+		controls.enabled = !event.value;
+	});
 
-	controlObj.addEventListener("dragging-changed", function (event) {
+	controlBanhObj = new TransformControls(camera, renderer.domElement);
+	controlBanhObj.showZ = true;
+	controlBanhObj.showY = false;
+	controlBanhObj.showX = false;
+	controlBanhObj.addEventListener("dragging-changed", function (event) {
 		controls.enabled = !event.value;
 	});
 
 	stats = new Stats();
-	container.appendChild(stats.dom);
+	//container.appendChild(stats.dom);
 
 	window.addEventListener("resize", onWindowResize);
+}
+function getRndInteger(min, max) {
+	return (Math.random() * (max - min) + min).toFixed(4);
 }
 
 function loadGa() {
@@ -387,61 +440,60 @@ function loadGa() {
 		objectsSelect.push(restartButton);
 
 		window.addEventListener("keydown", function (event) {
-			switch (event.keyCode) {
-				case 81: // Q
-					controlObj.setSpace(controlObj.space === "local" ? "world" : "local");
-					console.log(gaModel.position);
-					break;
+			// switch (event.keyCode) {
+			// 	case 81: // Q
+			// 	controlBanhObj.setSpace(controlBanhObj.space === "local" ? "world" : "local");
+			// 		break;
 
-				case 16: // Shift
-					controlObj.setTranslationSnap(100);
-					controlObj.setRotationSnap(THREE.MathUtils.degToRad(15));
-					controlObj.setScaleSnap(0.25);
-					break;
+			// 	case 16: // Shift
+			// 	controlBanhObj.setTranslationSnap(100);
+			// 	controlBanhObj.setRotationSnap(THREE.MathUtils.degToRad(15));
+			// 	controlBanhObj.setScaleSnap(0.25);
+			// 		break;
 
-				case 87: // W
-					controlObj.setMode("translate");
-					break;
+			// 	case 87: // W
+			// 		controlObj.setMode("translate");
+			// 		break;
 
-				case 69: // E
-					controlObj.setMode("rotate");
-					break;
+			// 	case 69: // E
+			// 		controlObj.setMode("rotate");
+			// 		break;
 
-				case 82: // R
-					controlObj.setMode("scale");
-					break;
+			// 	case 82: // R
+			// 		controlObj.setMode("scale");
+			// 		break;
 
-				case 67: // C
-					break;
+			// 	case 67: // C
+			// 		break;
 
-				case 86: // V
-					break;
-				case 187:
-				case 107: // +, =, num+
-					controlObj.setSize(controlObj.size + 0.1);
-					break;
+			// 	case 86: // V
+			// 		break;
+			// 	case 187:
+			// 	case 107: // +, =, num+
+			// 		controlObj.setSize(controlObj.size + 0.1);
+			// 		break;
 
-				case 189:
-				case 109: // -, _, num-
-					controlObj.setSize(Math.max(controlObj.size - 0.1, 0.1));
-					break;
+			// 	case 189:
+			// 	case 109: // -, _, num-
+			// 		controlObj.setSize(Math.max(controlObj.size - 0.1, 0.1));
+			// 		break;
 
-				case 88: // X
-					controlObj.showX = !controlObj.showX;
-					break;
+			// 	case 88: // X
+			// 		controlObj.showX = !controlObj.showX;
+			// 		break;
 
-				case 89: // Y
-					controlObj.showY = !controlObj.showY;
-					break;
+			// 	case 89: // Y
+			// 		controlObj.showY = !controlObj.showY;
+			// 		break;
 
-				case 90: // Z
-					controlObj.showZ = !controlObj.showZ;
-					break;
+			// 	case 90: // Z
+			// 		controlObj.showZ = !controlObj.showZ;
+			// 		break;
 
-				case 32: // Spacebar
-					controlObj.enabled = !controlObj.enabled;
-					break;
-			}
+			// 	case 32: // Spacebar
+			// 		controlObj.enabled = !controlObj.enabled;
+			// 		break;
+			// }
 		});
 
 		window.addEventListener("keyup", function (event) {
@@ -525,7 +577,6 @@ function createPanel() {
 
 function activateAction(action) {
 	const clip = action.getClip();
-	console.log(clip.name);
 	const settings = baseActions[clip.name] || additiveActions[clip.name];
 	setWeight(action, settings.weight);
 	action.play();
@@ -630,14 +681,8 @@ function animate() {
 	mixer.update(mixerUpdateDelta);
 
 	stats.update();
-
-	//renderer.render(scene, camera);
 	updateAnnotationOpacity();
 	updateScreenPosition();
-
-	//model.rotation.x += 0.01;
-	//arrowModel.rotation.y += 0.01;
-	//update();
 
 	if (
 		gaModel.position.z < 0.1 &&
@@ -646,16 +691,13 @@ function animate() {
 		stepNuongGa == 1
 	) {
 		isClose = true;
-		//DongCua();
-		controlObj.showZ = false;
-		controlObj.enabled = false;
-
+		controlGaObj.showZ = false;
+		controlGaObj.enabled = false;
 		NuongGa(2);
 	}
 	if (isClose && isNuongGa && stepNuongGa == 2) {
 		NuongGa(3);
 	}
-
 	if (
 		groupBanh.position.z < 0.1 &&
 		isClose == false &&
@@ -663,18 +705,27 @@ function animate() {
 		stepBanhBao == 1
 	) {
 		isClose = true;
-		controlObj.showZ = false;
-		controlObj.enabled = false;
-		console.log("ok");
+		controlBanhObj.showZ = false;
+		controlBanhObj.enabled = false;
 		BanhBao(2);
 	}
 
 	if (isClose && isHapBanh && stepBanhBao == 2) {
 		BanhBao(3);
 	}
+
+	// if (isHapBanh){
+	let smokeParticlesLength = smokeParticles.length;
+
+	while (smokeParticlesLength--) {
+		smokeParticles[smokeParticlesLength].rotation.z += mixerUpdateDelta * 2;
+	}
+	// }
+
 	render();
 }
 
+var i = 0;
 function render() {
 	renderer.render(scene, camera);
 	const timer = 0.0001 * Date.now();
@@ -683,6 +734,150 @@ function render() {
 	nhietdo.rotation.y += 0.005;
 
 	nhietDoMaterial.opacity = 0.3 * Math.sin(10 * timer);
+
+	switch (indexFunction) {
+		case 0:
+			if (i == 0) {
+				lcd.material.map = textureLCD00;
+				setTimeout(() => {
+					i = 1;
+				}, 700);
+			}
+			if (i == 1) {
+				lcd.material.map = textureLCD01;
+				setTimeout(() => {
+					i = 0;
+				}, 700);
+			}
+			break;
+		case 1:
+			if (i == 0) {
+				lcd.material.map = textureLCD00;
+				setTimeout(() => {
+					i = 1;
+				}, 700);
+			}
+			if (i == 1) {
+				lcd.material.map = textureLCD02;
+				setTimeout(() => {
+					i = 0;
+				}, 700);
+			}
+			break;
+		case 2:
+			if (i == 0) {
+				lcd.material.map = textureLCD00;
+				setTimeout(() => {
+					i = 1;
+				}, 700);
+			}
+			if (i == 1) {
+				lcd.material.map = textureLCD03;
+				setTimeout(() => {
+					i = 0;
+				}, 700);
+			}
+			break;
+		case 3:
+			if (i == 0) {
+				lcd.material.map = textureLCD00;
+				setTimeout(() => {
+					i = 1;
+				}, 700);
+			}
+			if (i == 1) {
+				lcd.material.map = textureLCD04;
+				setTimeout(() => {
+					i = 0;
+				}, 700);
+			}
+			break;
+		case 4:
+			if (i == 0) {
+				lcd.material.map = textureLCD00;
+				setTimeout(() => {
+					i = 1;
+				}, 700);
+			}
+			if (i == 1) {
+				lcd.material.map = textureLCD05;
+				setTimeout(() => {
+					i = 0;
+				}, 700);
+			}
+			break;
+		case 5:
+			if (i == 0) {
+				lcd.material.map = textureLCD00;
+				setTimeout(() => {
+					i = 1;
+				}, 700);
+			}
+			if (i == 1) {
+				lcd.material.map = textureLCD06;
+				setTimeout(() => {
+					i = 0;
+				}, 700);
+			}
+			break;
+		case 6:
+			if (i == 0) {
+				lcd.material.map = textureLCD00;
+				setTimeout(() => {
+					i = 1;
+				}, 700);
+			}
+			if (i == 1) {
+				lcd.material.map = textureLCD07;
+				setTimeout(() => {
+					i = 0;
+				}, 700);
+			}
+			break;
+		case 6:
+			if (i == 0) {
+				lcd.material.map = textureLCD00;
+				setTimeout(() => {
+					i = 1;
+				}, 700);
+			}
+			if (i == 1) {
+				lcd.material.map = textureLCD08;
+				setTimeout(() => {
+					i = 0;
+				}, 700);
+			}
+			break;
+		default:
+			lcd.material.map = textureLCD;
+	}
+	if (canSetTime) {
+		lcd.material.map = defaultTime;
+	}
+	if (isSetTime) {
+		lcd.material.map = timeTextures[indexTime];
+	}
+	if (isStart){
+		isStart = false;
+		setTimeout(() => {
+			document.getElementById("fucntion").innerHTML = "Hết thời gian";
+			document.getElementById("step").innerHTML = "Thức ăn đã chín";
+			document.getElementById("content").innerHTML = "Kết thúc mô phỏng";	
+			scene.remove(nhietdo);
+			scene.remove(groupHoiNuoc);
+			if (actionDC != null) {
+				actionDC.enabled = false;
+			}
+			scene.remove(lcd);
+			isClose = false;
+			actionMC = mixer.clipAction(animations[5]);
+			actionMC.timeScale = 0.3;
+			actionMC.setLoop(THREE.LoopOnce);
+			actionMC.clampWhenFinished = true;
+			actionMC.enable = true;
+			actionMC.play().reset();
+		}, 3000);
+	}
 }
 
 function updateAnnotationOpacity() {
@@ -712,8 +907,9 @@ function updateScreenPosition() {
 
 window.MoCua = function MoCua() {
 	if (actionDC != null) {
-		actionDC.stop();
+		actionDC.enabled = false;
 	}
+	scene.remove(lcd);
 	isClose = false;
 	actionMC = mixer.clipAction(animations[5]);
 	actionMC.timeScale = 0.3;
@@ -721,18 +917,20 @@ window.MoCua = function MoCua() {
 	actionMC.clampWhenFinished = true;
 	actionMC.enable = true;
 	actionMC.play().reset();
+	$(".button-bottom").toggleClass("button-bottom-hide");
+	setTimeout(()=>{
+		$(".button-bottom").toggleClass("button-bottom-hide");
+	}, 5000);
 };
 
 window.DongCua = function DongCua() {
 	if (actionMC != null) {
-		actionMC.stop();
-		console.log("co anim");
+		actionMC.enabled = false;
 	}
-
-	console.log("Dong cua");
 	timeouts.push(
 		setTimeout(() => {
 			controls.enabled = true;
+			scene.add(lcd);
 		}, 3000)
 	);
 	isClose = true;
@@ -759,7 +957,8 @@ window.CloseFucntion = function CloseFucntion() {
 	scene.remove(nhietdo);
 	gaModel.position.set(0, 0.5277480372311415, 1);
 	scene.remove(gaModel);
-	scene.remove(controlObj);
+	scene.remove(controlBanhObj);
+	scene.remove(controlGaObj);
 	groupBanh.position.set(0, 0.55, 1);
 	scene.remove(groupBanh);
 	groupBanh = new THREE.Group();
@@ -768,11 +967,19 @@ window.CloseFucntion = function CloseFucntion() {
 	isClose = false;
 	isNuongGa = false;
 	stepNuongGa = 0;
-	controlObj = new TransformControls(camera, renderer.domElement);
-	controlObj.showZ = true;
-	controlObj.showY = false;
-	controlObj.showX = false;
-	controlObj.addEventListener("dragging-changed", function (event) {
+	scene.remove(groupHoiNuoc);
+	controlGaObj = new TransformControls(camera, renderer.domElement);
+	controlGaObj.showZ = true;
+	controlGaObj.showY = false;
+	controlGaObj.showX = false;
+	controlGaObj.addEventListener("dragging-changed", function (event) {
+		controls.enabled = !event.value;
+	});
+	controlBanhObj = new TransformControls(camera, renderer.domElement);
+	controlBanhObj.showZ = true;
+	controlBanhObj.showY = false;
+	controlBanhObj.showX = false;
+	controlBanhObj.addEventListener("dragging-changed", function (event) {
 		controls.enabled = !event.value;
 	});
 
@@ -793,43 +1000,41 @@ window.NuongGa = function NuongGa(value) {
 			timeouts.push(
 				setTimeout(() => {
 					scene.add(gaModel);
-					controlObj.attach(gaModel);
-					scene.add(controlObj);
+					controlGaObj.attach(gaModel);
+					scene.add(controlGaObj);
 				}, 3000)
 			);
 			document.getElementById("fucntion").innerHTML = "Nướng Gà";
-			document.getElementById("step").innerHTML = "Bước 1";
-			document.getElementById("content").innerHTML = "Cho gà vào lò và đóng cửa";
+			document.getElementById("step").innerHTML = "";
+			document.getElementById("content").innerHTML =
+				"Cho gà vào lò và đóng cửa";
 			break;
 		case 2:
-			console.log("next");
 			stepNuongGa = 2;
 			document.getElementById("fucntion").innerHTML = "Nướng Gà";
-			document.getElementById("step").innerHTML = "Bước 2";
+			document.getElementById("step").innerHTML = "";
 			document.getElementById("content").innerHTML =
 				"Điều chỉnh bảng và chọn chức năng nướng";
 			DongCua();
 			//isClose = true;
-			controlObj.enabled = false;
-			scene.remove(controlObj);
+			controlGaObj.enabled = false;
+			scene.remove(controlGaObj);
 			controls.enable = true;
 
 			//	camera.position.set(2, 1, 0.7); // set camera sau khi bo ga vao
 			//controls.target.set(0, 0, 0);
 			break;
 		case 3:
-			console.log("next");
 			stepNuongGa = 3;
 			document.getElementById("fucntion").innerHTML = "Nướng Gà";
-			document.getElementById("step").innerHTML = "Bước 2";
-			document.getElementById("content").innerHTML = "Chọn chế độ phù hợp";
+			document.getElementById("step").innerHTML = "";
+			document.getElementById("content").innerHTML = "Bấm 'SELECT' đẻ chọn chế độ của lò";
 			//DongCua();
 			isClose = true;
 
 			canSelect = true;
 			break;
 		default:
-			console.log(value);
 	}
 };
 
@@ -839,8 +1044,8 @@ window.BanhBao = function BanhBao(value) {
 		case 1:
 			stepBanhBao = 1;
 			MoCua();
-			document.getElementById("fucntion").innerHTML = "Bánh Bao";
-			document.getElementById("content").innerHTML = "Cho bánh bao vào lò";
+			document.getElementById("fucntion").innerHTML = "Hấp Bánh Bao";
+			document.getElementById("content").innerHTML = "Cho bánh bao vào và đóng cửa lò";
 			timeouts.push(
 				setTimeout(() => {
 					scene.add(banhModel1);
@@ -849,42 +1054,41 @@ window.BanhBao = function BanhBao(value) {
 					groupBanh.add(banhModel1),
 						groupBanh.add(banhModel2),
 						groupBanh.add(banhModel3),
-						controlObj.attach(groupBanh);
+						controlBanhObj.attach(groupBanh);
 					//controlObj.attach(banhModel2);
-					scene.add(controlObj);
+					scene.add(controlBanhObj);
 				}, 3000)
 			);
 			break;
 		case 2:
-			console.log("next 2");
 			stepBanhBao = 2;
 			document.getElementById("fucntion").innerHTML = "Banh bao";
-			document.getElementById("step").innerHTML = "Bước 2";
+			document.getElementById("step").innerHTML = "";
 			document.getElementById("content").innerHTML =
 				"Điều chỉnh bảng và chọn chức năng nướng";
 			DongCua();
 			isClose = true;
-			controlObj.enabled = false;
-			scene.remove(controlObj);
+			controlBanhObj.enabled = false;
+			scene.remove(controlBanhObj);
 			controls.enable = true;
 			break;
 		case 3:
-			console.log("next 3");
 			stepBanhBao = 3;
-			document.getElementById("fucntion").innerHTML = "Bánh bao";
-			document.getElementById("step").innerHTML = "Bước 3";
-			document.getElementById("content").innerHTML = "Chọn chế độ của lò";
+			document.getElementById("fucntion").innerHTML = "Hấp Bánh Bao";
+			document.getElementById("step").innerHTML = "";
+			document.getElementById("content").innerHTML = "Bấm 'SELECT' đẻ chọn chế độ của lò";
 			//DongCua();
 			//isClose = true;
 
 			canSelect = true;
 			break;
 		default:
-			console.log(value);
 	}
 };
 
 var indexFunction = -1;
+var indexTime = -1;
+var isStart;
 function onDocumentMouseDown(event) {
 	event.preventDefault();
 	var mouse3D = new THREE.Vector3(
@@ -897,27 +1101,24 @@ function onDocumentMouseDown(event) {
 	var intersects = raycaster.intersectObjects(objectsSelect);
 	if (intersects[0] != null) {
 		if (canSelect) {
-			console.log("can select");
 			if (!canSetTime) {
 				if (intersects[0].object.name == "plusbutton") {
-					console.log("Chọn chế độ");
 					isSelectFunction = true;
 					document.getElementById("fucntion").innerHTML = "Chọn chế độ";
 					document.getElementById("step").innerHTML = "";
 					if (indexFunction == chucnang.length - 1) {
-						indexFunction = 0;
+						indexFunction = -1;
 					}
 					indexFunction++;
 					document.getElementById("content").innerHTML =
 						chucnang[indexFunction];
 				}
 				if (intersects[0].object.name == "minusbutton") {
-					console.log("Chọn chế độ");
 					isSelectFunction = true;
 					document.getElementById("fucntion").innerHTML = "Chọn chế độ";
 					document.getElementById("step").innerHTML = "";
-					if (indexFunction == 0) {
-						indexFunction = chucnang.length - 1;
+					if (indexFunction == 0 || indexFunction == -1) {
+						indexFunction = chucnang.length;
 					}
 					indexFunction = indexFunction - 1;
 					document.getElementById("content").innerHTML =
@@ -925,12 +1126,28 @@ function onDocumentMouseDown(event) {
 				}
 			} else {
 				if (intersects[0].object.name == "plusbutton") {
-					console.log("Chọn thời gian");
 					isSelectFunction = true;
+
+					if (indexTime == timeTextures.length - 1) {
+						indexTime = -1;
+					}
+					indexTime++;
+
 					document.getElementById("fucntion").innerHTML = "Chọn thời gian";
 					document.getElementById("step").innerHTML = "";
-					document.getElementById("content").innerHTML =
-						"chucnang[indexFunction]";
+					document.getElementById("content").innerHTML = "";
+					isSetTime = true;
+				} else if (intersects[0].object.name == "minusbutton") {
+					isSelectFunction = true;
+
+					if (indexTime == 0 || indexTime == -1) {
+						indexTime = timeTextures.length;
+					}
+					indexTime = indexTime - 1;
+
+					document.getElementById("fucntion").innerHTML = "Chọn thời gian";
+					document.getElementById("step").innerHTML = "";
+					document.getElementById("content").innerHTML = "";
 					isSetTime = true;
 				}
 			}
@@ -938,30 +1155,80 @@ function onDocumentMouseDown(event) {
 			if (isSelectFunction) {
 				if (!isSetTime) {
 					if (intersects[0].object.name == "startbutton") {
-						console.log("Chọn thời gian");
 						document.getElementById("fucntion").innerHTML = "Chọn thời gian";
 						document.getElementById("step").innerHTML = "";
 						document.getElementById("content").innerHTML =
 							"Chọn thời gian thích hợp";
 						canSetTime = true;
+						lcd.material.map = timeTextures[0];
 					}
 				} else {
 					if (intersects[0].object.name == "startbutton") {
 						scene.add(nhietdo);
 
-						console.log("Lò đã bắt đầu");
+						if (isHapBanh) {
+							scene.add(groupHoiNuoc);
+						}
 						document.getElementById("fucntion").innerHTML =
-							"Lò đã bắt đầu chạy ";
+							"Lò bắt đầu chạy ";
 						document.getElementById("step").innerHTML = "";
 						document.getElementById("content").innerHTML =
 							"Vui lòng đợi trong giây lát";
-						canSetTime = true;
+						canSetTime = false;
+						isStart = true;
 					}
 				}
+			}
+
+			if (intersects[0].object.name == "restartbutton") {
+				canSelect = true;
+				canSetTime = false;
+				indexFunction = -1;
+				isSelectFunction = false;
+				isSetTime = false;
+				indexTime = -1;
+				document.getElementById("fucntion").innerHTML = "Nướng Gà";
+				document.getElementById("step").innerHTML = "Bước 2";
+				document.getElementById("content").innerHTML = "Chọn chế độ phù hợp";
+				lcd.material.map = textureLCD00;
+				isStart = false;
 			}
 		}
 	}
 }
 function onTransitionEnd(event) {
 	event.target.remove();
+}
+function addParticles() {
+	const textureLoaderSmoke = new THREE.TextureLoader();
+
+	textureLoaderSmoke.load(
+		"https://rawgit.com/marcobiedermann/playground/master/three.js/smoke-particles/dist/assets/images/clouds.png",
+		(texture) => {
+			const smokeMaterial = new THREE.MeshLambertMaterial({
+				color: 0xffffff,
+				map: texture,
+				transparent: true,
+			});
+			smokeMaterial.map.minFilter = THREE.LinearFilter;
+			const smokeGeometry = new THREE.PlaneBufferGeometry(0.15, 0.15);
+
+			const smokeMeshes = [];
+			let limit = 100;
+
+			while (limit--) {
+				smokeMeshes[limit] = new THREE.Mesh(smokeGeometry, smokeMaterial);
+				smokeMeshes[limit].position.set(
+					getRndInteger(-0.35, 0.35),
+					getRndInteger(0.3, 0.9),
+					getRndInteger(-0.3, 0.3)
+				);
+				smokeMeshes[limit].rotation.z = Math.random() * 360;
+				smokeParticles.push(smokeMeshes[limit]);
+				groupHoiNuoc.add(smokeMeshes[limit]);
+				// scene.add(smokeMeshes[limit]);
+			}
+			//scene.add(groupHoiNuoc);
+		}
+	);
 }
