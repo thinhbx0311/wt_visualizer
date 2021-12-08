@@ -1225,7 +1225,7 @@ window.BanhBao = function BanhBao(value) {
 		case 0:
 			document.getElementById("fucntion").innerHTML = "Hấp Bánh Bao";
 			document.getElementById("content").innerHTML =
-				"Đổ nước vào khay phía dưới";
+				"Đổ nước vào khay phía dưới và đặt vào vị trí ban đầu";
 			break;
 		case 1:
 			stepBanhBao = 1;
