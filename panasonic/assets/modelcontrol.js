@@ -7,6 +7,7 @@ import { GLTFLoader } from "./jsm/loaders/GLTFLoader.js";
 import { FBXLoader } from "./jsm/loaders/FBXLoader.js";
 import { TransformControls } from "./jsm/controls/TransformControls.js";
 import { RoomEnvironment } from "./jsm/environments/RoomEnvironment.js";
+import { TWEEN } from './jsm/libs/tween.module.min.js';
 
 let scene, renderer, camera, stats, mesh;
 let model, skeleton, mixer, clock, controls;
@@ -41,13 +42,20 @@ var gaModel,
 	banhModel4,
 	banhModel5,
 	banhModel6,
-	groupBanh;
-var controlGaObj, controlBanhObj, controlKhay;
+	groupBanh,
+	khoaiTay1,
+	khoaiTay2,
+	groupKhoaiTay,
+	carot1,
+	carot2,
+	groupCarot
+	;
+var controlGaObj, controlBanhObj, controlKhay, controlKhoaiObj, controlCarotObj;
 var objectsSelect = [];
 var lcd;
 var smokeParticles = [];
 var loaderKhay1, loaderKhay2;
-var banhKhay2, banhKhay1;
+var banhKhay2, banhKhay1, khay11, khay22;
 var khay1, khay2, khay3;
 
 var isClose = true;
@@ -55,10 +63,22 @@ var isClose = true;
 //Nuong Ga
 var isNuongGa = false;
 var stepNuongGa;
+var textureGa1,  textureGa2;
 
 var isHapBanh = false;
 var stepBanhBao;
 var isOpenKhay = false;
+
+//Khoai tay
+var isPotato = false;
+var stepPotato;
+var textureKhoai1, textureKhoai2;
+
+//Carot
+var isCarot = false;
+var stepCarot;
+var isOpenKhay = false;
+var textureCarot;
 
 //Info canvas
 var loadingScreen = document.getElementById("loading-screen");
@@ -89,6 +109,7 @@ ctx.fillText("1", x, y);
 
 let spriteBehindObject;
 const annotation = document.querySelector(".annotation");
+const annotation2 = document.querySelector(".annotation2");
 
 //Điều khiển bếp
 var canSelect, isSelectFunction, canSetTime, isSetTime;
@@ -97,7 +118,7 @@ var chucnang = [
 	"Chế độ hấp thông thường",
 	"Chế độ chiên không dầu",
 	"Chế độ lên men",
-	"Chế độ đối lưu (Với cách này, toàn bộ bề mặt thức ăn được nhận năng lượng nhiệt cùng một lúc. Ví dụ: luộc rau, chiên cá ngập dầu, đồ xôi. Khi luộc rau, bạn nên luộc với nhiều nước cho ngập rau, vì rau phải được nước bao bọc hoàn toàn thì mới chín đều được)",
+	"Chế độ đối lưu",
 	"Chế độ hầm bằng phương pháp đối lưu ",
 	"Chế độ Menu tự động",
 ];
@@ -135,6 +156,8 @@ var timeTextures = [
 ];
 init();
 loadGa();
+loadPotato();
+loadCarot();
 
 function init() {
 	const container = document.getElementById("container");
@@ -215,6 +238,7 @@ function init() {
 		loadingScreen.classList.add("fade-out");
 		// optional: remove loader from DOM via event listener
 		loadingScreen.addEventListener("transitionend", onTransitionEnd);
+		
 	};
 	manager.onError = function () {
 		//console.log('there has been an error');
@@ -253,8 +277,8 @@ function init() {
 	});
 
 	const loaderKhayDuoi = new GLTFLoader();
-	loaderKhayDuoi.load("models/gltf/Khay Final final final.gltf", function (gltf) {
-		gltf.scene.children[2].material = new THREE.MeshPhongMaterial({
+	loaderKhayDuoi.load("models/gltf/de chuan 2.gltf", function (gltf) {
+		gltf.scene.children[1].material = new THREE.MeshPhongMaterial({
 			color: 0xffffff,
 			specular: 0xffffff,
 			emissive: 0xffffff,
@@ -263,9 +287,9 @@ function init() {
 			transparent: true,
 		});
 		var model2 = gltf.scene;
-		khay1 = gltf.scene.children[2];
-		khay2 = gltf.scene.children[3];
-		khay3 = gltf.scene.children[4];
+		khay1 = gltf.scene.children[1];
+		khay2 = gltf.scene.children[2];
+		khay3 = gltf.scene.children[3];
 
 		groupKhay = new THREE.Group();
 		groupKhay.add(khay1);
@@ -285,10 +309,13 @@ function init() {
 	});
 
 	loaderKhay1 = new FBXLoader();
-	loaderKhay1.load("models/fbx/khay final.fbx", function (object) {
-		banhKhay1 = object.children[2];
+	loaderKhay1.load("models/fbx/khay final 4.fbx", function (object) {
+		banhKhay1 = object.children[0];
+		khay11 = object.children[1];
 		banhKhay1.position.set(0, -0.22, 0);
 		banhKhay1.scale.set(0.003, 0.004, 0.003);
+		khay11.position.set(0, -0.22, 0);
+		khay11.scale.set(0.003, 0.004, 0.003);
 
 		banhKhay1.traverse(function (child) {
 			if (child.isMesh) {
@@ -297,14 +324,30 @@ function init() {
 				child.castShadow = true;
 			}
 		});
+
+		banhKhay1.material = new THREE.MeshPhongMaterial({
+			color: 0x141414,
+			opacity: 1,
+			transparent: false,
+		});
+
+
 		scene.add(banhKhay1);
+		scene.add(khay11);
 	});
 	loaderKhay2 = new FBXLoader();
-	loaderKhay2.load("models/fbx/khay final.fbx", function (object) {
-		banhKhay2 = object.children[2];
+	loaderKhay2.load("models/fbx/khay final 4.fbx", function (object) {
+		banhKhay2 = object.children[0];
+		khay22  = object.children[1];
 		banhKhay2.position.set(0, 0, 0);
 		banhKhay2.scale.set(0.003, 0.004, 0.003);
-
+		khay22.position.set(0, 0, 0);
+		khay22.scale.set(0.003, 0.004, 0.003);
+		banhKhay2.material = new THREE.MeshPhongMaterial({
+			color: 0x141414,
+			opacity: 1,
+			transparent: false,
+		});
 		// banhModel2 = object.children[0];
 		// banhModel2.position.set(0.3, 0.55, 1);
 		// banhModel2.scale.set(0.1, 0.1, 0.1);
@@ -318,24 +361,24 @@ function init() {
 			}
 		});
 		scene.add(banhKhay2);
+		scene.add(khay22);
 	});
 
 	// let tracker = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
 	// 	new THREE.Vector3(0,0,0),
 	//   new THREE.Vector3(0.8,1, 0)
-	// ]), new THREE.LineBasicMaterial( {
-	// 	color: 'red',
-	// 	linewidth: 10,
-	// 	linecap: 'round', //ignored by WebGLRenderer
-	// 	linejoin:  'round' //ignored by WebGLRenderer
-	// } ));
+	// ]), new THREE.LineDashedMaterial({
+    //     color: 0xff0000,
+    //     linewidth: 5
+    // }));
+	
 	// scene.add(tracker);
 
 	const loaderBanh = new FBXLoader();
 	loaderBanh.load("models/fbx/Banhbao.fbx", function (object) {
 		banhModel1 = object.children[0];
 		banhModel1.position.set(0, 0, 0);
-		banhModel1.scale.set(0.1, 0.1, 0.1);
+		banhModel1.scale.set(0.1, 0.13, 0.1);
 
 		// banhModel2 = object.children[0];
 		// banhModel2.position.set(0.3, 0.55, 1);
@@ -356,7 +399,7 @@ function init() {
 		banhModel2 = object.children[0];
 		//banhModel2.position.set(0.3, 0.55, 1);
 		banhModel2.position.set(0.3, 0, 0);
-		banhModel2.scale.set(0.1, 0.1, 0.1);
+		banhModel2.scale.set(0.1, 0.13, 0.1);
 		//scene.add(banhModel2);
 
 		banhModel2.traverse(function (child) {
@@ -373,7 +416,7 @@ function init() {
 		banhModel3 = object.children[0];
 		//banhModel2.position.set(0.3, 0.55, 1);
 		banhModel3.position.set(-0.3, 0, 0);
-		banhModel3.scale.set(0.1, 0.1, 0.1);
+		banhModel3.scale.set(0.1, 0.13, 0.1);
 		//scene.add(banhModel2);
 
 		banhModel3.traverse(function (child) {
@@ -390,7 +433,7 @@ function init() {
 	loaderBanh4.load("models/fbx/Banhbao.fbx", function (object) {
 		banhModel4 = object.children[0];
 		//banhModel2.position.set(0.3, 0.55, 1);
-		banhModel4.position.set(0, 0.2, 0);
+		banhModel4.position.set(0, 0.23, 0);
 		banhModel4.scale.set(0.1, 0.1, 0.1);
 		//scene.add(banhModel2);
 
@@ -408,7 +451,7 @@ function init() {
 	loaderBanh5.load("models/fbx/Banhbao.fbx", function (object) {
 		banhModel5 = object.children[0];
 		//banhModel2.position.set(0.3, 0.55, 1);
-		banhModel5.position.set(0.3, 0.2, 0);
+		banhModel5.position.set(0.3, 0.23, 0);
 		banhModel5.scale.set(0.1, 0.1, 0.1);
 		//scene.add(banhModel2);
 
@@ -425,7 +468,7 @@ function init() {
 	loaderBanh6.load("models/fbx/Banhbao.fbx", function (object) {
 		banhModel6 = object.children[0];
 		//banhModel2.position.set(0.3, 0.55, 1);
-		banhModel6.position.set(-0.3, 0.2, 0);
+		banhModel6.position.set(-0.3, 0.23, 0);
 		banhModel6.scale.set(0.1, 0.1, 0.1);
 		//scene.add(banhModel2);
 
@@ -485,12 +528,12 @@ function init() {
 		1,
 		100
 	);
-	camera.position.set(-1, 2, 3);
+	camera.position.set(0, 0.8, 3);
 
 	controls = new OrbitControls(camera, renderer.domElement);
 	controls.enablePan = false;
 	controls.enableZoom = true;
-	controls.target.set(0, 1, 0);
+	controls.target.set(0, 0.2, 0);
 	controls.minDistance = 2;
 	controls.maxDistance = 10;
 	controls.update();
@@ -519,6 +562,22 @@ function init() {
 		controls.enabled = !event.value;
 	});
 
+	controlKhoaiObj = new TransformControls(camera, renderer.domElement);
+	controlKhoaiObj.showZ = true;
+	controlKhoaiObj.showY = false;
+	controlKhoaiObj.showX = false;
+	controlKhoaiObj.addEventListener("dragging-changed", function (event) {
+		controls.enabled = !event.value;
+	});
+
+	controlCarotObj = new TransformControls(camera, renderer.domElement);
+	controlCarotObj.showZ = true;
+	controlCarotObj.showY = false;
+	controlCarotObj.showX = false;
+	controlCarotObj.addEventListener("dragging-changed", function (event) {
+		controls.enabled = !event.value;
+	});
+
 	stats = new Stats();
 	//container.appendChild(stats.dom);
 
@@ -529,8 +588,8 @@ function getRndInteger(min, max) {
 }
 
 function loadGa() {
-	var texture = new THREE.TextureLoader().load("textures/ga/ga.png");
-
+	 textureGa1 = new THREE.TextureLoader().load("textures/ga/ga.png");
+	 textureGa2 = new THREE.TextureLoader().load("textures/ga/ga chin.png");
 	// model
 	const loader = new FBXLoader();
 	loader.load("models/fbx/ga.fbx", function (object) {
@@ -540,7 +599,7 @@ function loadGa() {
 
 		gaModel.traverse(function (child) {
 			if (child.isMesh) {
-				child.material.map = texture;
+				child.material.map = textureGa1;
 				//child.material.needsUpdate = true;
 				child.castShadow = true;
 			}
@@ -645,6 +704,85 @@ function loadGa() {
 		});
 		document.addEventListener("mousedown", onDocumentMouseDown);
 	});
+}
+
+function loadPotato() {
+	 textureKhoai1 = new THREE.TextureLoader().load("textures/khoaitay/khoai song.png");
+	 textureKhoai2 = new THREE.TextureLoader().load("textures/khoaitay/khoai chien.png");
+
+	// model
+	const loader = new FBXLoader();
+	loader.load("models/fbx/potato.fbx", function (object) {
+		khoaiTay1 = object.children[0];
+		khoaiTay1.position.set(0, -0.7, 0);
+		khoaiTay1.scale.set(0.003, 0.003, 0.003);
+
+		khoaiTay1.traverse(function (child) {
+			if (child.isMesh) {
+				child.material.map = textureKhoai1;
+				child.castShadow = true;
+			}
+		});
+	//	scene.add(khoaiTay1);
+	});
+
+	const loader2 = new FBXLoader();
+	loader2.load("models/fbx/potato.fbx", function (object) {
+		khoaiTay2 = object.children[0];
+		khoaiTay2.position.set(0, -0.5, 0);
+		khoaiTay2.scale.set(0.003, 0.003, 0.003);
+
+		khoaiTay2.traverse(function (child) {
+			if (child.isMesh) {
+				child.material.map = textureKhoai1;
+				child.castShadow = true;
+			}
+		});
+	//	scene.add(khoaiTay2);
+	});
+
+	groupKhoaiTay = new THREE.Group();
+	groupKhoaiTay.position.set(0, 0.7, 1);
+	scene.add(groupKhoaiTay);
+
+}
+
+function loadCarot() {
+	textureCarot = new THREE.TextureLoader().load("textures/carot/carot.jpg");
+	//textureKhoai2 = new THREE.TextureLoader().load("textures/khoaitay/khoai chien.png");
+
+   // model
+   const loader = new FBXLoader();
+   loader.load("models/fbx/carot.fbx", function (object) {
+	   carot1 = object.children[0];
+	   carot1.position.set(0, 0.25, 0);
+	   carot1.scale.set(0.005, 0.004, 0.004);
+
+	   carot1.traverse(function (child) {
+		   if (child.isMesh) {
+			   child.material.map = textureCarot;
+			   child.castShadow = true;
+		   }
+	   });
+   	//scene.add(carot1);
+   });
+   const loader2 = new FBXLoader();
+   loader2.load("models/fbx/carot.fbx", function (object) {
+	   carot2 = object.children[0];
+	   carot2.position.set(0, 0, 0);
+	   carot2.scale.set(0.005, 0.004, 0.004);
+
+	   carot2.traverse(function (child) {
+		   if (child.isMesh) {
+			   child.material.map = textureCarot;
+			   child.castShadow = true;
+		   }
+	   });
+   	//scene.add(carot2);
+   });
+  	 groupCarot = new THREE.Group();
+  	 groupCarot.position.set(0, 0.6, 1);
+	 scene.add(groupCarot);
 }
 
 function createPanel() {
@@ -846,8 +984,7 @@ function animate() {
 			done = true;
 		}, 2000);
 	}
-	if (isOpenKhay && groupKhay.position.z <= -0.2){
-		
+	if (isHapBanh && isOpenKhay && groupKhay.position.z <= -0.2){
 		setTimeout(() => {
 			controls.enabled = true;
 		}, 1000);
@@ -876,7 +1013,61 @@ function animate() {
 		BanhBao(3);
 	}
 
-	
+	if (
+		groupKhoaiTay.position.z < 0.1 &&
+		isClose == false &&
+		isPotato == true &&
+		stepPotato == 1
+	) {
+		isClose = true;
+		controlBanhObj.showZ = false;
+		controlBanhObj.enabled = false;
+		KhoaiTayChien(2);
+	}
+	if (isClose && isPotato && stepPotato == 2) {
+		KhoaiTayChien(3);
+	}
+
+
+	//Carot
+
+	if (isCarot && groupKhay.position.z <= 0.5 && !isOpenKhay && !done){
+		groupKhay.position.z += mixerUpdateDelta * 0.45;
+		setTimeout(() => {
+			controlKhay.attach(groupKhay);
+			scene.add(controlKhay);
+			isOpenKhay = true;
+			done = true;
+		}, 2000);
+	}
+	if (isCarot && isOpenKhay && groupKhay.position.z <= -0.2){
+		setTimeout(() => {
+			controls.enabled = true;
+		}, 1000);
+		
+		Carot(1);
+		isOpenKhay = false;
+		controlKhay.showZ = false;
+		controlKhay.enabled = false;
+		scene.remove(controlKhay);
+		groupKhay.position.set(0, 0, -0.2);
+	}
+
+	if (
+		groupCarot.position.z < 0.1 &&
+		isClose == false &&
+		isCarot == true &&
+		stepCarot == 1
+	) {
+		isClose = true;
+		controlCarotObj.showZ = false;
+		controlCarotObj.enabled = false;
+		Carot(2);
+	}
+
+	if (isClose && isCarot && stepCarot == 2) {
+		Carot(3);
+	}
 
 	// if (isHapBanh){
 	let smokeParticlesLength = smokeParticles.length;
@@ -893,6 +1084,7 @@ var i = 0;
 function render() {
 	renderer.render(scene, camera);
 	const timer = 0.0001 * Date.now();
+	TWEEN.update();
 
 	nhietdo.rotation.x += 0.01;
 	nhietdo.rotation.y += 0.005;
@@ -1040,6 +1232,20 @@ function render() {
 			actionMC.clampWhenFinished = true;
 			actionMC.enable = true;
 			actionMC.play().reset();
+
+			if (isPotato){
+				khoaiTay1.material.map = textureKhoai2;
+				khoaiTay2.material.map = textureKhoai2;
+			}
+			if (isNuongGa){
+				gaModel.traverse(function (child) {
+					if (child.isMesh) {
+						child.material.map = textureGa2;
+						//child.material.needsUpdate = true;
+						child.castShadow = true;
+					}
+				});
+			}
 		}, 10000);
 	}
 }
@@ -1047,12 +1253,13 @@ function render() {
 function updateAnnotationOpacity() {
 	const meshDistance = camera.position.distanceTo(model.position);
 	const spriteDistance = camera.position.distanceTo(sprite.position);
-	spriteBehindObject = spriteDistance > meshDistance;
+	spriteBehindObject = spriteDistance > meshDistance + 1;
 	sprite.material.opacity = spriteBehindObject ? 0.5 : 1;
 }
 
 function updateScreenPosition() {
 	const vector = new THREE.Vector3(0.7, 1.1, 0.5);
+	const vector2 = new THREE.Vector3(0, 0.8, 0);
 	const canvas = renderer.domElement;
 
 	vector.project(camera);
@@ -1064,10 +1271,24 @@ function updateScreenPosition() {
 		(0.5 - vector.y / 2) * (canvas.height / window.devicePixelRatio)
 	);
 
+	vector2.project(camera);
+
+	vector2.x = Math.round(
+		(0.5 + vector2.x / 2) * (canvas.width / window.devicePixelRatio)
+	);
+	vector2.y = Math.round(
+		(0.5 - vector2.y / 2) * (canvas.height / window.devicePixelRatio)
+	);
+
 	annotation.style.top = `${vector.y}px`;
 	annotation.style.left = `${vector.x}px`;
 	annotation.style.opacity = spriteBehindObject ? 0.25 : 1;
+
+	annotation2.style.top = `${vector2.y}px`;
+	annotation2.style.left = `${vector2.x}px`;
+	annotation2.style.opacity = canSelect ? 1 : 0;
 }
+
 
 window.MoCua = function MoCua() {
 	if (actionDC != null) {
@@ -1081,10 +1302,18 @@ window.MoCua = function MoCua() {
 	actionMC.clampWhenFinished = true;
 	actionMC.enable = true;
 	actionMC.play().reset();
-	$(".button-bottom").toggleClass("button-bottom-hide");
-	setTimeout(() => {
+	if(isHapBanh || isCarot){
+		setTimeout(() => {
+			$(".button-bottom").toggleClass("button-bottom-hide");
+		}, 5000);
+	}
+	else {
 		$(".button-bottom").toggleClass("button-bottom-hide");
-	}, 5000);
+		setTimeout(() => {
+			$(".button-bottom").toggleClass("button-bottom-hide");
+		}, 5000);
+	}
+	
 };
 
 window.DongCua = function DongCua() {
@@ -1118,6 +1347,12 @@ window.CloseFucntion = function CloseFucntion() {
 	document.getElementById("fucntion").innerHTML = "Panasonic";
 	document.getElementById("step").innerHTML = "";
 	document.getElementById("content").innerHTML = "NU-SC180B";
+
+	document.getElementById("fucntion2").innerHTML = "Hướng Dẫn Sử Dụng";
+	document.getElementById("content2").innerHTML = "Bấm nút \"Select\" (⦉ và ⦊) để chọn chế độ thích hợp";
+	document.getElementById("step2").innerHTML = "";
+	document.getElementById("content3").innerHTML = "";
+
 	scene.remove(nhietdo);
 	gaModel.position.set(0, 0.5277480372311415, 1);
 	scene.remove(gaModel);
@@ -1155,6 +1390,23 @@ window.CloseFucntion = function CloseFucntion() {
 	controlKhay.addEventListener("dragging-changed", function (event) {
 		controls.enabled = !event.value;
 	});
+
+	controlKhoaiObj = new TransformControls(camera, renderer.domElement);
+	controlKhoaiObj.showZ = true;
+	controlKhoaiObj.showY = false;
+	controlKhoaiObj.showX = false;
+	controlKhoaiObj.addEventListener("dragging-changed", function (event) {
+		controls.enabled = !event.value;
+	});
+
+	controlCarotObj = new TransformControls(camera, renderer.domElement);
+	controlCarotObj.showZ = true;
+	controlCarotObj.showY = false;
+	controlCarotObj.showX = false;
+	controlCarotObj.addEventListener("dragging-changed", function (event) {
+		controls.enabled = !event.value;
+	});
+
 	done = false;
 	isHapBanh = false;
 	stepBanhBao = 0;
@@ -1162,17 +1414,45 @@ window.CloseFucntion = function CloseFucntion() {
 	canSetTime = false;
 	isSelectFunction = false;
 	isSetTime = false;
-	done = false;
 	isOpenKhay = false;
 
+	isPotato = false;
+	stepPotato = 0;
+	khoaiTay2.position.set(0, -0.5, 0);
+	khoaiTay1.position.set(0, -0.7, 0);
+	scene.remove(khoaiTay1);
+	scene.remove(khoaiTay2);
+	scene.remove(groupKhoaiTay);
+	scene.remove(controlKhoaiObj);
+	groupKhoaiTay = new THREE.Group();
+	groupKhoaiTay.position.set(0, 0.7, 1);
+	scene.add(groupKhoaiTay);
+
+	isCarot = false;
+	stepCarot = 0;
+	carot2.position.set(0, 0, 0);
+	carot1.position.set(0, 0.25, 0);
+	scene.remove(carot1);
+	scene.remove(carot2);
+	scene.remove(controlCarotObj);
+	scene.remove(groupCarot);
+	groupCarot = new THREE.Group();
+	groupCarot.position.set(0, 0.6, 1);
+ 	scene.add(groupCarot);
+	
+
 	scene.add(banhKhay2);
+	scene.add(khay22);
 	indexFunction = -1;
 	indexTime = -1;
+	var targetPosition = new THREE.Vector3(0, 0.8, 3);
+	tweenMove(targetPosition, 4000);
 };
 
 window.NuongGa = function NuongGa(value) {
 	isNuongGa = true;
 	scene.remove(banhKhay2);
+	scene.remove(khay22);
 	switch (value) {
 		case 1:
 			stepNuongGa = 1;
@@ -1214,6 +1494,8 @@ window.NuongGa = function NuongGa(value) {
 			isClose = true;
 
 			canSelect = true;
+			var targetPosition = new THREE.Vector3(0.023509239731627832, 0.2837485024765941, 1.9981074805876107);
+			tweenMove(targetPosition, 4000);
 			break;
 		default:
 	}
@@ -1226,6 +1508,7 @@ window.BanhBao = function BanhBao(value) {
 			document.getElementById("fucntion").innerHTML = "Hấp Bánh Bao";
 			document.getElementById("content").innerHTML =
 				"Đổ nước vào khay phía dưới và đặt vào vị trí ban đầu";
+			$(".button-bottom").toggleClass("button-bottom-hide");
 			break;
 		case 1:
 			stepBanhBao = 1;
@@ -1233,6 +1516,7 @@ window.BanhBao = function BanhBao(value) {
 			document.getElementById("fucntion").innerHTML = "Hấp Bánh Bao";
 			document.getElementById("content").innerHTML =
 				"Cho bánh bao vào và đóng cửa lò";
+				//$(".button-bottom").toggleClass("button-bottom-hide");
 			timeouts.push(
 				setTimeout(() => {
 					scene.add(banhModel1);
@@ -1249,6 +1533,7 @@ window.BanhBao = function BanhBao(value) {
 					scene.add(controlBanhObj);
 				}, 3000)
 			);
+			
 			break;
 		case 2:
 			stepBanhBao = 2;
@@ -1272,6 +1557,122 @@ window.BanhBao = function BanhBao(value) {
 			//isClose = true;
 
 			canSelect = true;
+			var targetPosition = new THREE.Vector3(0.023509239731627832, 0.2837485024765941, 1.9981074805876107);
+			tweenMove(targetPosition, 4000);
+			break;
+		default:
+	}
+};
+
+window.Carot = function Carot(value) {
+	isCarot = true;
+	switch (value) {
+		case 0:
+			document.getElementById("fucntion").innerHTML = "Hấp Rau Củ";
+			document.getElementById("content").innerHTML =
+				"Đổ nước vào khay phía dưới và đặt vào vị trí ban đầu";
+			$(".button-bottom").toggleClass("button-bottom-hide");
+			break;
+		case 1:
+			stepCarot = 1;
+			MoCua();
+			document.getElementById("fucntion").innerHTML = "Hấp Rau Củ";
+			document.getElementById("content").innerHTML =
+				"Cho rau củ vào và đóng cửa lò";
+				//$(".button-bottom").toggleClass("button-bottom-hide");
+			timeouts.push(
+				setTimeout(() => {
+					scene.add(carot1);
+					scene.add(carot2);
+					groupCarot.add(carot1),
+					groupCarot.add(carot2),
+					controlCarotObj.attach(groupCarot);
+					//controlObj.attach(banhModel2);
+					scene.add(controlCarotObj);
+				}, 3000)
+			);
+			break;
+		case 2:
+			stepCarot = 2;
+			document.getElementById("fucntion").innerHTML = "Hấp Rau Củ";
+			document.getElementById("step").innerHTML = "";
+			document.getElementById("content").innerHTML =
+				"Điều chỉnh bảng và chọn chức năng nướng";
+			DongCua();
+			isClose = true;
+			controlBanhObj.enabled = false;
+			scene.remove(controlCarotObj);
+			controls.enable = true;
+			break;
+		case 3:
+			stepCarot = 3;
+			document.getElementById("fucntion").innerHTML = "Hấp Rau Củ";
+			document.getElementById("step").innerHTML = "Khi hấp bánh bao, nên chọn chế độ <br />'Steam Low - Hấp với nhiệt độ thấp' <br /> 'Stew - Hấp thông thường'";
+			document.getElementById("content").innerHTML =
+				"Bấm 'SELECT' đẻ chọn chế độ của lò";
+			//DongCua();
+			//isClose = true;
+
+			canSelect = true;
+			var targetPosition = new THREE.Vector3(0.023509239731627832, 0.2837485024765941, 1.9981074805876107);
+			tweenMove(targetPosition, 4000);
+			break;
+		default:
+	}
+};
+
+window.KhoaiTayChien = function KhoaiTayChien(value) {
+	isPotato = true;
+
+	switch (value) {
+		case 1:
+			stepPotato = 1;
+			MoCua();
+			timeouts.push(
+				setTimeout(() => {
+					scene.add(khoaiTay1);
+					scene.add(khoaiTay2);
+					groupKhoaiTay.add(khoaiTay1),
+					groupKhoaiTay.add(khoaiTay2),
+
+					controlKhoaiObj.attach(groupKhoaiTay);
+					//controlObj.attach(banhModel2);
+					scene.add(controlKhoaiObj);
+				}, 3000)
+			);
+			document.getElementById("fucntion").innerHTML = "Chiên Khoai Tây";
+			document.getElementById("step").innerHTML = "";
+			document.getElementById("content").innerHTML =
+				"Cho khoai tây vào lò và đóng cửa";
+			break;
+		case 2:
+			stepPotato = 2;
+			document.getElementById("fucntion").innerHTML = "Chiên Khoai Tây";
+			document.getElementById("step").innerHTML = "";
+			document.getElementById("content").innerHTML =
+				"Điều chỉnh bảng và chọn chức năng nướng";
+			DongCua();
+			//isClose = true;
+			controlKhoaiObj.enabled = false;
+			scene.remove(controlKhoaiObj);
+			controls.enable = true;
+
+			//	camera.position.set(2, 1, 0.7); // set camera sau khi bo ga vao
+			//controls.target.set(0, 0, 0);
+			break;
+		case 3:
+			stepPotato = 3;
+			document.getElementById("fucntion").innerHTML = "Chiên Khoai Tây";
+			document.getElementById("step").innerHTML = "Khi chiên khoai tây, nên chọn chế độ <br /> 'Healthy Fry - Chiên không dầu'";
+			document.getElementById("content").innerHTML =
+				"Bấm 'SELECT' đẻ chọn chế độ của lò";
+			//DongCua();
+			isClose = true;
+
+			canSelect = true;
+
+			var targetPosition = new THREE.Vector3(0.023509239731627832, 0.2837485024765941, 1.9981074805876107);
+			tweenMove(targetPosition, 4000);
 			break;
 		default:
 	}
@@ -1293,29 +1694,49 @@ function onDocumentMouseDown(event) {
 	if (intersects[0] != null) {
 		if (canSelect) {
 			if (!canSetTime) {
+				if (isNuongGa){
+					document.getElementById("fucntion2").innerHTML = "Nướng Gà";
+					document.getElementById("step2").innerHTML = "Khi nướng gà, nên chọn chế độ 'Healthy Fry - Chiên không dầu' <br />";
+				}
+				else if (isHapBanh){
+					document.getElementById("fucntion2").innerHTML = "Hấp Bánh Bao";
+					document.getElementById("step2").innerHTML = "Khi hấp bánh bao, nên chọn chế độ 'Steam Low - Hấp với nhiệt độ thấp' <br /> 'Stew - Hấp thông thường' <br />";
+				}
+				else if (isPotato){
+					document.getElementById("fucntion2").innerHTML = "Chiên Khoai Tây";
+					document.getElementById("step2").innerHTML = "Khi chiên khoai tây, nên chọn chế độ 'Healthy Fry - Chiên không dầu' <br />";
+				}
+				else if (isCarot){
+					document.getElementById("fucntion2").innerHTML = "Hấp Rau Củ";
+					document.getElementById("step2").innerHTML = "Khi hấp rau củ, nên chọn chế độ 'Steam Low - Hấp với nhiệt độ thấp' <br /> 'Stew - Hấp thông thường' <br />";
+				}
+				document.getElementById("content3").innerHTML = "Khi lựa chọn xong chức năng. Vui lòng bấm nút \"Start/Set\" để chuyển sang chọn thời gian";
+				
 				if (intersects[0].object.name == "plusbutton") {
 					isSelectFunction = true;
-					document.getElementById("fucntion").innerHTML = "Chọn chế độ";
-					document.getElementById("step").innerHTML = "";
 					if (indexFunction == chucnang.length - 1) {
 						indexFunction = -1;
 					}
 					indexFunction++;
-					document.getElementById("content").innerHTML =
+					document.getElementById("content2").innerHTML = "Bạn đang lựa chọn: " + 
 						chucnang[indexFunction];
 				}
 				if (intersects[0].object.name == "minusbutton") {
 					isSelectFunction = true;
-					document.getElementById("fucntion").innerHTML = "Chọn chế độ";
-					document.getElementById("step").innerHTML = "";
+					// document.getElementById("fucntion").innerHTML = "Chọn chế độ";
+					// document.getElementById("step").innerHTML = "";
 					if (indexFunction == 0 || indexFunction == -1) {
 						indexFunction = chucnang.length;
 					}
 					indexFunction = indexFunction - 1;
-					document.getElementById("content").innerHTML =
+					document.getElementById("content2").innerHTML ="Bạn đang lựa chọn: " +
 						chucnang[indexFunction];
 				}
 			} else {
+				document.getElementById("fucntion2").innerHTML = "Chọn thời gian";
+				document.getElementById("step2").innerHTML = "Bấm nút \"Select\" (⦉ và ⦊) để chọn thời gian thích hợp";
+				document.getElementById("content2").innerHTML = "";
+				document.getElementById("content3").innerHTML = "Khi lựa chọn xong thời gian. Vui lòng bấm nút \"Start/Set\" để lò bắt đầu hoạt động";
 				if (intersects[0].object.name == "plusbutton") {
 					isSelectFunction = true;
 
@@ -1324,9 +1745,7 @@ function onDocumentMouseDown(event) {
 					}
 					indexTime++;
 
-					document.getElementById("fucntion").innerHTML = "Chọn thời gian";
-					document.getElementById("step").innerHTML = "";
-					document.getElementById("content").innerHTML = "";
+					
 					isSetTime = true;
 				} else if (intersects[0].object.name == "minusbutton") {
 					isSelectFunction = true;
@@ -1335,10 +1754,6 @@ function onDocumentMouseDown(event) {
 						indexTime = timeTextures.length;
 					}
 					indexTime = indexTime - 1;
-
-					document.getElementById("fucntion").innerHTML = "Chọn thời gian";
-					document.getElementById("step").innerHTML = "";
-					document.getElementById("content").innerHTML = "";
 					isSetTime = true;
 				}
 			}
@@ -1346,10 +1761,10 @@ function onDocumentMouseDown(event) {
 			if (isSelectFunction) {
 				if (!isSetTime) {
 					if (intersects[0].object.name == "startbutton") {
-						document.getElementById("fucntion").innerHTML = "Chọn thời gian";
-						document.getElementById("step").innerHTML = "";
-						document.getElementById("content").innerHTML =
-							"Chọn thời gian thích hợp";
+						document.getElementById("fucntion2").innerHTML = "Chọn thời gian";
+						document.getElementById("step2").innerHTML = "Bấm nút \"Select\" (⦉ và ⦊) để chọn thời gian thích hợp";
+						document.getElementById("content2").innerHTML = "";
+						document.getElementById("content3").innerHTML = "Khi lựa chọn xong thời gian. Vui lòng bấm nút \"Start/Set\" để lò bắt đầu hoạt động";
 						canSetTime = true;
 						lcd.material.map = timeTextures[0];
 					}
@@ -1357,15 +1772,18 @@ function onDocumentMouseDown(event) {
 					if (intersects[0].object.name == "startbutton") {
 						scene.add(nhietdo);
 
-						if (isHapBanh) {
+						if (isHapBanh || isCarot) {
 							scene.add(groupHoiNuoc);
 						}
+						canSelect = false;
 						document.getElementById("fucntion").innerHTML = "Lò bắt đầu chạy ";
 						document.getElementById("step").innerHTML = "";
 						document.getElementById("content").innerHTML =
 							"Vui lòng đợi trong giây lát";
 						canSetTime = false;
 						isStart = true;
+						var targetPosition = new THREE.Vector3(1.993908777897646, 1.5186552818666301, 3);
+						tweenMove(targetPosition, 4000);
 					}
 				}
 			}
@@ -1421,4 +1839,20 @@ function addParticles() {
 			//scene.add(groupHoiNuoc);
 		}
 	);
+}
+function tweenMove(targetPosition, duration) {
+    controls.enabled = false;
+    var position = new THREE.Vector3().copy(camera.position);
+    var tween = new TWEEN.Tween(position)
+        .to(targetPosition, duration)
+        .easing(TWEEN.Easing.Back.InOut)
+        .onUpdate(function () {
+            camera.position.copy(position);
+            camera.lookAt(controls.target);
+        })
+        .onComplete(function () {
+            camera.position.copy(targetPosition);
+            camera.lookAt(controls.target);
+            controls.enabled = true;
+        }).start();
 }

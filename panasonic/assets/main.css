@@ -121,10 +121,23 @@ a, button, input, select {
 	justify-content: flex-start;
 	align-items: flex-start;
   }
+
+  .container3 {
+	width: 20%;
+	display: flex;
+	justify-content: flex-start;
+	align-items: flex-start;
+  }
+  .container4 {
+	width: 20%;
+	display: flex;
+	justify-content: flex-start;
+	align-items: flex-start;
+  }
   .card {
 	transform-style: preserve-3d;
-	height: 20rem;
-	width: 25rem;
+	height: 11rem;
+	width: 15rem;
 	border-radius: 30px;
 	padding: 0rem 2rem;
 	box-shadow: 0 20px 20px rgba(0, 0, 0, 0.2), 0px 0px 50px rgba(0, 0, 0, 0.2);
@@ -137,8 +150,36 @@ a, button, input, select {
   }
   .card2 {
 	transform-style: preserve-3d;
-	height: 20rem;
-	width: 25rem;
+	height: 11rem;
+	width: 15rem;
+	border-radius: 30px;
+	padding: 0rem 2rem;
+	box-shadow: 0 20px 20px rgba(0, 0, 0, 0.2), 0px 0px 50px rgba(0, 0, 0, 0.2);
+	background: linear-gradient(
+	  to bottom,
+	  rgba(255, 255, 255, 0.75),
+	  rgba(43, 198, 236, 0.75)
+	);
+  }
+
+  .card3 {
+	transform-style: preserve-3d;
+	height: 11rem;
+	width: 15rem;
+	border-radius: 30px;
+	padding: 0rem 2rem;
+	box-shadow: 0 20px 20px rgba(0, 0, 0, 0.2), 0px 0px 50px rgba(0, 0, 0, 0.2);
+	background: linear-gradient(
+	  to bottom,
+	  rgba(255, 255, 255, 0.75),
+	  rgba(43, 198, 236, 0.75)
+	);
+  }
+
+  .card4 {
+	transform-style: preserve-3d;
+	height: 11rem;
+	width: 15rem;
 	border-radius: 30px;
 	padding: 0rem 2rem;
 	box-shadow: 0 20px 20px rgba(0, 0, 0, 0.2), 0px 0px 50px rgba(0, 0, 0, 0.2);
@@ -157,7 +198,7 @@ a, button, input, select {
   }
   
   .chicken img {
-	width: 10rem;
+	width: 8rem;
 	z-index: 2;
 	transition: all 0.75s ease-out;
   }
@@ -170,14 +211,40 @@ a, button, input, select {
   }
   
   .dumpling img {
-	width: 10rem;
+	width: 8rem;
+	z-index: 2;
+	transition: all 0.75s ease-out;
+  }
+
+  .potato {
+	height: 80%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+  }
+  
+  .potato img {
+	width: 8rem;
+	z-index: 2;
+	transition: all 0.75s ease-out;
+  }
+
+  .vegetables {
+	height: 80%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+  }
+  
+  .vegetables img {
+	width: 8rem;
 	z-index: 2;
 	transition: all 0.75s ease-out;
   }
   
   .circle {
-	width: 10rem;
-	height: 10rem;
+	width: 7rem;
+	height: 7rem;
 	background: linear-gradient(
 	  to right,
 	  rgba(236, 212, 78, 0.589),
@@ -199,6 +266,11 @@ a, button, input, select {
 	transition: all 0.75s ease-out;
 	text-align: center;
   }
+  .info h2 {
+    font-size: 3rem;
+    transition: all 0.75s ease-out;
+    text-align: center;
+    }
   .info h3 {
 	font-size: 1.3rem;
 	padding: 0rem 0rem;
@@ -209,7 +281,7 @@ a, button, input, select {
 	margin-top: 0px;
   }
   .info h4 {
-	font-size: 1.3rem;
+	font-size: 1rem;
 	padding: 0rem 0rem;
 	color: #585858;
 	/* font-weight: lighter; */
@@ -654,6 +726,7 @@ canvas {
     font-size: 12px;
     line-height: 1.2;
     transition: opacity .5s;
+    pointer-events: none;
 }
 .annotation-before {
         content: '1';
@@ -668,6 +741,38 @@ canvas {
         line-height: 30px;
         text-align: center;
         background: rgba(0, 0, 0, 0.8);
+}
+
+.annotation2 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  margin-left: 15px;
+  margin-top: 15px;
+  padding: 1em;
+  width: 500px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: .5em;
+  font-size: 12px;
+  line-height: 1.2;
+  transition: opacity .5s;
+  pointer-events: none;
+}
+.annotation2-before {
+      content: '1';
+      position: absolute;
+      top: -30px;
+      left: -30px;
+      width: 30px;
+      height: 30px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      font-size: 16px;
+      line-height: 30px;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.8);
 }
 
 #number {
