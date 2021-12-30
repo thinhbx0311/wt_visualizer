@@ -136,8 +136,8 @@ a, button, input, select {
   }
   .card {
 	transform-style: preserve-3d;
-	height: 11rem;
-	width: 15rem;
+	height: 8rem;
+	width: 10rem;
 	border-radius: 30px;
 	padding: 0rem 2rem;
 	box-shadow: 0 20px 20px rgba(0, 0, 0, 0.2), 0px 0px 50px rgba(0, 0, 0, 0.2);
@@ -150,8 +150,8 @@ a, button, input, select {
   }
   .card2 {
 	transform-style: preserve-3d;
-	height: 11rem;
-	width: 15rem;
+	height: 8rem;
+	width: 10rem;
 	border-radius: 30px;
 	padding: 0rem 2rem;
 	box-shadow: 0 20px 20px rgba(0, 0, 0, 0.2), 0px 0px 50px rgba(0, 0, 0, 0.2);
@@ -164,8 +164,8 @@ a, button, input, select {
 
   .card3 {
 	transform-style: preserve-3d;
-	height: 11rem;
-	width: 15rem;
+	height: 8rem;
+	width: 10rem;
 	border-radius: 30px;
 	padding: 0rem 2rem;
 	box-shadow: 0 20px 20px rgba(0, 0, 0, 0.2), 0px 0px 50px rgba(0, 0, 0, 0.2);
@@ -178,8 +178,8 @@ a, button, input, select {
 
   .card4 {
 	transform-style: preserve-3d;
-	height: 11rem;
-	width: 15rem;
+	height: 8rem;
+	width: 10rem;
 	border-radius: 30px;
 	padding: 0rem 2rem;
 	box-shadow: 0 20px 20px rgba(0, 0, 0, 0.2), 0px 0px 50px rgba(0, 0, 0, 0.2);
@@ -198,7 +198,7 @@ a, button, input, select {
   }
   
   .chicken img {
-	width: 8rem;
+	width: 7rem;
 	z-index: 2;
 	transition: all 0.75s ease-out;
   }
@@ -211,7 +211,7 @@ a, button, input, select {
   }
   
   .dumpling img {
-	width: 8rem;
+	width: 7rem;
 	z-index: 2;
 	transition: all 0.75s ease-out;
   }
@@ -224,7 +224,7 @@ a, button, input, select {
   }
   
   .potato img {
-	width: 8rem;
+	width: 7rem;
 	z-index: 2;
 	transition: all 0.75s ease-out;
   }
@@ -237,14 +237,14 @@ a, button, input, select {
   }
   
   .vegetables img {
-	width: 8rem;
+	width: 7rem;
 	z-index: 2;
 	transition: all 0.75s ease-out;
   }
   
   .circle {
-	width: 7rem;
-	height: 7rem;
+	width: 6rem;
+	height: 6rem;
 	background: linear-gradient(
 	  to right,
 	  rgba(236, 212, 78, 0.589),

@@ -621,28 +621,28 @@ function loadGa() {
 		});
 		const startButton = new THREE.Mesh(geometry, material);
 		startButton.position.set(0.42, 0.29, 0.53);
-		startButton.scale.set(0.01, 0.01, 0.01);
+		startButton.scale.set(0.02, 0.02, 0.02);
 		scene.add(startButton);
 		startButton.name = "startbutton";
 		objectsSelect.push(startButton);
 
 		const plusButton = new THREE.Mesh(geometry, material);
 		plusButton.position.set(0.35, 0.29, 0.53);
-		plusButton.scale.set(0.01, 0.01, 0.01);
+		plusButton.scale.set(0.02, 0.02, 0.02);
 		scene.add(plusButton);
 		plusButton.name = "plusbutton";
 		objectsSelect.push(plusButton);
 
 		const minusButton = new THREE.Mesh(geometry, material);
 		minusButton.position.set(0.27, 0.29, 0.53);
-		minusButton.scale.set(0.01, 0.01, 0.01);
+		minusButton.scale.set(0.02, 0.02, 0.02);
 		scene.add(minusButton);
 		minusButton.name = "minusbutton";
 		objectsSelect.push(minusButton);
 
 		const restartButton = new THREE.Mesh(geometry, material);
 		restartButton.position.set(0.19, 0.29, 0.53);
-		restartButton.scale.set(0.01, 0.01, 0.01);
+		restartButton.scale.set(0.02, 0.02, 0.02);
 		scene.add(restartButton);
 		restartButton.name = "restartbutton";
 		objectsSelect.push(restartButton);
@@ -1219,6 +1219,7 @@ function render() {
 			document.getElementById("fucntion").innerHTML = "Hết thời gian";
 			document.getElementById("step").innerHTML = "Thức ăn đã chín";
 			document.getElementById("content").innerHTML = "Kết thúc mô phỏng";
+			$(".button-bottom").toggleClass("button-bottom-hide");
 			scene.remove(nhietdo);
 			scene.remove(groupHoiNuoc);
 			if (actionDC != null) {
@@ -1259,7 +1260,7 @@ function updateAnnotationOpacity() {
 
 function updateScreenPosition() {
 	const vector = new THREE.Vector3(0.7, 1.1, 0.5);
-	const vector2 = new THREE.Vector3(0, 0.8, 0);
+	const vector2 = new THREE.Vector3(0, 0.9, 0);
 	const canvas = renderer.domElement;
 
 	vector.project(camera);
@@ -1450,6 +1451,8 @@ window.CloseFucntion = function CloseFucntion() {
 };
 
 window.NuongGa = function NuongGa(value) {
+	var targetPosition = new THREE.Vector3(1.993908777897646, 1.5186552818666301, 3);
+	tweenMove(targetPosition, 3000);
 	isNuongGa = true;
 	scene.remove(banhKhay2);
 	scene.remove(khay22);
@@ -1467,7 +1470,7 @@ window.NuongGa = function NuongGa(value) {
 			document.getElementById("fucntion").innerHTML = "Nướng Gà";
 			document.getElementById("step").innerHTML = "";
 			document.getElementById("content").innerHTML =
-				"Cho gà vào lò và đóng cửa";
+				"Sử dụng chuột kéo mũi tên màu xanh để cho gà vào lò và đóng cửa";
 			break;
 		case 2:
 			stepNuongGa = 2;
@@ -1502,12 +1505,14 @@ window.NuongGa = function NuongGa(value) {
 };
 
 window.BanhBao = function BanhBao(value) {
+	var targetPosition = new THREE.Vector3(1.993908777897646, 1.5186552818666301, 3);
+	tweenMove(targetPosition, 3000);
 	isHapBanh = true;
 	switch (value) {
 		case 0:
 			document.getElementById("fucntion").innerHTML = "Hấp Bánh Bao";
 			document.getElementById("content").innerHTML =
-				"Đổ nước vào khay phía dưới và đặt vào vị trí ban đầu";
+				"Bạn sẽ cần đổ nước vào khay phía dưới và đặt vào vị trí ban đầu. Dùng chuột kéo mũi tên vào bên trong lò để đặt lại khay.";
 			$(".button-bottom").toggleClass("button-bottom-hide");
 			break;
 		case 1:
@@ -1515,7 +1520,7 @@ window.BanhBao = function BanhBao(value) {
 			MoCua();
 			document.getElementById("fucntion").innerHTML = "Hấp Bánh Bao";
 			document.getElementById("content").innerHTML =
-				"Cho bánh bao vào và đóng cửa lò";
+				"Sử dụng chuột kéo mũi tên màu xanh để cho bánh bao vào và đóng cửa lò";
 				//$(".button-bottom").toggleClass("button-bottom-hide");
 			timeouts.push(
 				setTimeout(() => {
@@ -1565,20 +1570,22 @@ window.BanhBao = function BanhBao(value) {
 };
 
 window.Carot = function Carot(value) {
+	var targetPosition = new THREE.Vector3(1.993908777897646, 1.5186552818666301, 3);
+	tweenMove(targetPosition, 3000);
 	isCarot = true;
 	switch (value) {
 		case 0:
-			document.getElementById("fucntion").innerHTML = "Hấp Rau Củ";
+			document.getElementById("fucntion").innerHTML = "Hầm Rau Củ";
 			document.getElementById("content").innerHTML =
-				"Đổ nước vào khay phía dưới và đặt vào vị trí ban đầu";
+				"Bạn sẽ cần đổ nước vào khay phía dưới và đặt vào vị trí ban đầu. Dùng chuột kéo mũi tên vào bên trong lò để đặt lại khay.";
 			$(".button-bottom").toggleClass("button-bottom-hide");
 			break;
 		case 1:
 			stepCarot = 1;
 			MoCua();
-			document.getElementById("fucntion").innerHTML = "Hấp Rau Củ";
+			document.getElementById("fucntion").innerHTML = "Hầm Rau Củ";
 			document.getElementById("content").innerHTML =
-				"Cho rau củ vào và đóng cửa lò";
+				"Sử dụng chuột kéo mũi tên màu xanh để cho rau củ vào và đóng cửa lò";
 				//$(".button-bottom").toggleClass("button-bottom-hide");
 			timeouts.push(
 				setTimeout(() => {
@@ -1594,7 +1601,7 @@ window.Carot = function Carot(value) {
 			break;
 		case 2:
 			stepCarot = 2;
-			document.getElementById("fucntion").innerHTML = "Hấp Rau Củ";
+			document.getElementById("fucntion").innerHTML = "Hầm Rau Củ";
 			document.getElementById("step").innerHTML = "";
 			document.getElementById("content").innerHTML =
 				"Điều chỉnh bảng và chọn chức năng nướng";
@@ -1606,8 +1613,8 @@ window.Carot = function Carot(value) {
 			break;
 		case 3:
 			stepCarot = 3;
-			document.getElementById("fucntion").innerHTML = "Hấp Rau Củ";
-			document.getElementById("step").innerHTML = "Khi hấp bánh bao, nên chọn chế độ <br />'Steam Low - Hấp với nhiệt độ thấp' <br /> 'Stew - Hấp thông thường'";
+			document.getElementById("fucntion").innerHTML = "Hầm Rau Củ";
+			document.getElementById("step").innerHTML = "Khi hấp bánh bao, nên chọn chế độ <br /> 'Stew - Hấp thông thường'";
 			document.getElementById("content").innerHTML =
 				"Bấm 'SELECT' đẻ chọn chế độ của lò";
 			//DongCua();
@@ -1623,7 +1630,8 @@ window.Carot = function Carot(value) {
 
 window.KhoaiTayChien = function KhoaiTayChien(value) {
 	isPotato = true;
-
+	var targetPosition = new THREE.Vector3(1.993908777897646, 1.5186552818666301, 3);
+	tweenMove(targetPosition, 3000);
 	switch (value) {
 		case 1:
 			stepPotato = 1;
@@ -1643,7 +1651,7 @@ window.KhoaiTayChien = function KhoaiTayChien(value) {
 			document.getElementById("fucntion").innerHTML = "Chiên Khoai Tây";
 			document.getElementById("step").innerHTML = "";
 			document.getElementById("content").innerHTML =
-				"Cho khoai tây vào lò và đóng cửa";
+				"Sử dụng chuột kéo mũi tên màu xanh để cho khoai tây vào lò và đóng cửa";
 			break;
 		case 2:
 			stepPotato = 2;
@@ -1707,8 +1715,8 @@ function onDocumentMouseDown(event) {
 					document.getElementById("step2").innerHTML = "Khi chiên khoai tây, nên chọn chế độ 'Healthy Fry - Chiên không dầu' <br />";
 				}
 				else if (isCarot){
-					document.getElementById("fucntion2").innerHTML = "Hấp Rau Củ";
-					document.getElementById("step2").innerHTML = "Khi hấp rau củ, nên chọn chế độ 'Steam Low - Hấp với nhiệt độ thấp' <br /> 'Stew - Hấp thông thường' <br />";
+					document.getElementById("fucntion2").innerHTML = "Hầm Rau Củ";
+					document.getElementById("step2").innerHTML = "Khi Hầm Rau Củ, nên chọn chế độ 'Stew - Hấp thông thường' <br />";
 				}
 				document.getElementById("content3").innerHTML = "Khi lựa chọn xong chức năng. Vui lòng bấm nút \"Start/Set\" để chuyển sang chọn thời gian";
 				
@@ -1780,10 +1788,12 @@ function onDocumentMouseDown(event) {
 						document.getElementById("step").innerHTML = "";
 						document.getElementById("content").innerHTML =
 							"Vui lòng đợi trong giây lát";
+							$(".button-bottom").toggleClass("button-bottom-hide");
 						canSetTime = false;
 						isStart = true;
 						var targetPosition = new THREE.Vector3(1.993908777897646, 1.5186552818666301, 3);
 						tweenMove(targetPosition, 4000);
+
 					}
 				}
 			}
