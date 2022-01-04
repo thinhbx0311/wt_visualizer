@@ -169,7 +169,7 @@ function init() {
 	scene.add(hemiLight);
 
 	const dirLight = new THREE.DirectionalLight(0xffffff);
-	dirLight.position.set(3, 10, 10);
+	dirLight.position.set(-3, 8, 5);
 	dirLight.castShadow = true;
 	dirLight.shadow.camera.top = 2;
 	dirLight.shadow.camera.bottom = -2;
@@ -180,7 +180,7 @@ function init() {
 	scene.add(dirLight);
 
 	dirLight2 = new THREE.DirectionalLight(0xffffff);
-	dirLight2.position.set(3, 10, -10);
+	dirLight2.position.set(3, 10, 10);
 	dirLight2.castShadow = false;
 
 	// ground
@@ -1704,19 +1704,19 @@ function onDocumentMouseDown(event) {
 			if (!canSetTime) {
 				if (isNuongGa){
 					document.getElementById("fucntion2").innerHTML = "Nướng Gà";
-					document.getElementById("step2").innerHTML = "Khi nướng gà, nên chọn chế độ 'Healthy Fry - Chiên không dầu' <br />";
+					document.getElementById("step2").innerHTML = "Khi nướng gà, nên chọn chế độ:" + "<span style=\"color:yellow\">" + ' Healthy Fry - Chiên không dầu' + "</span>";
 				}
 				else if (isHapBanh){
 					document.getElementById("fucntion2").innerHTML = "Hấp Bánh Bao";
-					document.getElementById("step2").innerHTML = "Khi hấp bánh bao, nên chọn chế độ 'Steam Low - Hấp với nhiệt độ thấp' <br /> 'Stew - Hấp thông thường' <br />";
+					document.getElementById("step2").innerHTML = "Khi hấp bánh bao, nên chọn chế độ:" + "<span style=\"color:yellow\">" + ' Steam Low - Hấp với nhiệt độ thấp hoặc Stew - Hấp thông thường' + "</span>";
 				}
 				else if (isPotato){
 					document.getElementById("fucntion2").innerHTML = "Chiên Khoai Tây";
-					document.getElementById("step2").innerHTML = "Khi chiên khoai tây, nên chọn chế độ 'Healthy Fry - Chiên không dầu' <br />";
+					document.getElementById("step2").innerHTML = "Khi chiên khoai tây, nên chọn chế độ:" + "<span style=\"color:yellow\">" + ' Healthy Fry - Chiên không dầu' + "</span>";
 				}
 				else if (isCarot){
 					document.getElementById("fucntion2").innerHTML = "Hầm Rau Củ";
-					document.getElementById("step2").innerHTML = "Khi Hầm Rau Củ, nên chọn chế độ 'Stew - Hấp thông thường' <br />";
+					document.getElementById("step2").innerHTML = "Khi Hầm Rau Củ, nên chọn chế độ:" + "<span style=\"color:yellow\">" + ' Stew - Hấp thông thường' + "</span>";
 				}
 				document.getElementById("content3").innerHTML = "Khi lựa chọn xong chức năng. Vui lòng bấm nút \"Start/Set\" để chuyển sang chọn thời gian";
 				
@@ -1726,8 +1726,7 @@ function onDocumentMouseDown(event) {
 						indexFunction = -1;
 					}
 					indexFunction++;
-					document.getElementById("content2").innerHTML = "Bạn đang lựa chọn: " + 
-						chucnang[indexFunction];
+					document.getElementById("content2").innerHTML = "Bạn đang lựa chọn: " + "<span style=\"color:yellow\">" + chucnang[indexFunction] + "</span>";
 				}
 				if (intersects[0].object.name == "minusbutton") {
 					isSelectFunction = true;
@@ -1737,8 +1736,7 @@ function onDocumentMouseDown(event) {
 						indexFunction = chucnang.length;
 					}
 					indexFunction = indexFunction - 1;
-					document.getElementById("content2").innerHTML ="Bạn đang lựa chọn: " +
-						chucnang[indexFunction];
+					document.getElementById("content2").innerHTML ="Bạn đang lựa chọn: " + "<span style=\"color:yellow\">" + chucnang[indexFunction] + "</span>";
 				}
 			} else {
 				document.getElementById("fucntion2").innerHTML = "Chọn thời gian";
