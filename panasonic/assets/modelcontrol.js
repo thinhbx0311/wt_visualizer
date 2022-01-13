@@ -1464,6 +1464,17 @@ window.CloseFucntion = function CloseFucntion() {
 	scene.add(khay22);
 	indexFunction = -1;
 	indexTime = -1;
+
+	khoaiTay1.material.map = textureKhoai1;
+	khoaiTay2.material.map = textureKhoai1;
+	gaModel.traverse(function (child) {
+		if (child.isMesh) {
+				child.material.map = textureGa1;
+				//child.material.needsUpdate = true;
+				child.castShadow = true;
+			}
+		});
+
 	var targetPosition = new THREE.Vector3(0, 0.8, 3);
 	tweenMove(targetPosition, 4000);
 };
