@@ -189,7 +189,7 @@ function init() {
 	grid.material.opacity = 0.1;
 	grid.material.depthWrite = false;
 	grid.material.transparent = true;
-	scene.add(grid);
+	//scene.add(grid);
 
 	const mesh = new THREE.Mesh(
 		new THREE.PlaneGeometry(100, 100),
@@ -197,7 +197,7 @@ function init() {
 	);
 	mesh.rotation.x = -Math.PI / 2;
 	mesh.receiveShadow = true;
-	scene.add(mesh);
+	//scene.add(mesh);
 
 	lcd = new THREE.Mesh(
 		new THREE.PlaneGeometry(0.3, 0.15),
@@ -274,6 +274,18 @@ function init() {
 
 		scene.add(model);
 		animate();
+	});
+
+	const loaderRoom = new GLTFLoader(manager);
+	loaderRoom.load("models/gltf/kitchen.glb", function (gltf) {
+		var modelRoom = gltf.scene;
+		modelRoom.scale.set(4.5, 4.5, 4.5);
+		modelRoom.position.set(24,-4.2,50);
+		modelRoom.traverse(function (object) {
+			//if (object.isMesh) object.castShadow = true;
+		});
+
+		scene.add(modelRoom);
 	});
 
 	const loaderKhayDuoi = new GLTFLoader();
@@ -373,7 +385,7 @@ function init() {
     // }));
 	
 	// scene.add(tracker);
-
+	var textureDum = new THREE.TextureLoader().load("textures/banhbao/Dim.jpeg");
 	const loaderBanh = new FBXLoader();
 	loaderBanh.load("models/fbx/Banhbao.fbx", function (object) {
 		banhModel1 = object.children[0];
@@ -390,6 +402,7 @@ function init() {
 				//child.material.map = texture;
 				//child.material.needsUpdate = true;
 				child.castShadow = true;
+				child.material.map = textureDum;
 			}
 		});
 		//scene.add(banhModel1);
@@ -407,6 +420,7 @@ function init() {
 				//child.material.map = texture;
 				//child.material.needsUpdate = true;
 				child.castShadow = true;
+				child.material.map = textureDum;
 			}
 		});
 		//scene.add(banhModel2);
@@ -424,6 +438,7 @@ function init() {
 				//child.material.map = texture;
 				//child.material.needsUpdate = true;
 				child.castShadow = true;
+				child.material.map = textureDum;
 			}
 		});
 		//scene.add(banhModel3);
@@ -442,6 +457,7 @@ function init() {
 				//child.material.map = texture;
 				//child.material.needsUpdate = true;
 				child.castShadow = true;
+				child.material.map = textureDum;
 			}
 		});
 		//scene.add(banhModel4);
@@ -460,6 +476,7 @@ function init() {
 				//child.material.map = texture;
 				//child.material.needsUpdate = true;
 				child.castShadow = true;
+				child.material.map = textureDum;
 			}
 		});
 		//scene.add(banhModel5);
@@ -477,6 +494,7 @@ function init() {
 				//child.material.map = texture;
 				//child.material.needsUpdate = true;
 				child.castShadow = true;
+				child.material.map = textureDum;
 			}
 		});
 		//scene.add(banhModel6);
@@ -495,10 +513,10 @@ function init() {
 		opacity: 0.3,
 		transparent: true,
 	});
-	const sphereGeo = new THREE.SphereGeometry(4, 32, 16);
+	const sphereGeo = new THREE.BoxGeometry( 1, 1, 1 );
 	nhietdo = new THREE.Mesh(sphereGeo, nhietDoMaterial);
-	nhietdo.position.set(0, 0.5, 0);
-	nhietdo.scale.set(0.1, 0.1, 0.1);
+	nhietdo.position.set(0, 0.6, 0);
+	nhietdo.scale.set(0.95, 0.8, 0.8);
 	//scene.add(nhietdo);
 
 	// Hoi nuoc
@@ -748,15 +766,15 @@ function loadPotato() {
 }
 
 function loadCarot() {
-	textureCarot = new THREE.TextureLoader().load("textures/carot/carot.jpg");
+	textureCarot = new THREE.TextureLoader().load("textures/carot/food.png");
 	//textureKhoai2 = new THREE.TextureLoader().load("textures/khoaitay/khoai chien.png");
 
    // model
    const loader = new FBXLoader();
-   loader.load("models/fbx/carot.fbx", function (object) {
+   loader.load("models/fbx/Nabe.fbx", function (object) {
 	   carot1 = object.children[0];
-	   carot1.position.set(0, 0.25, 0);
-	   carot1.scale.set(0.005, 0.004, 0.004);
+	   carot1.position.set(0, -0.03, 0);
+	   carot1.scale.set(0.01, 0.01, 0.01);
 
 	   carot1.traverse(function (child) {
 		   if (child.isMesh) {
@@ -766,20 +784,20 @@ function loadCarot() {
 	   });
    	//scene.add(carot1);
    });
-   const loader2 = new FBXLoader();
-   loader2.load("models/fbx/carot.fbx", function (object) {
-	   carot2 = object.children[0];
-	   carot2.position.set(0, 0, 0);
-	   carot2.scale.set(0.005, 0.004, 0.004);
+//    const loader2 = new FBXLoader();
+//    loader2.load("models/fbx/carot.fbx", function (object) {
+// 	   carot2 = object.children[0];
+// 	   carot2.position.set(0, 0, 0);
+// 	   carot2.scale.set(0.005, 0.004, 0.004);
 
-	   carot2.traverse(function (child) {
-		   if (child.isMesh) {
-			   child.material.map = textureCarot;
-			   child.castShadow = true;
-		   }
-	   });
+// 	   carot2.traverse(function (child) {
+// 		   if (child.isMesh) {
+// 			   child.material.map = textureCarot;
+// 			   child.castShadow = true;
+// 		   }
+// 	   });
    	//scene.add(carot2);
-   });
+   //});
   	 groupCarot = new THREE.Group();
   	 groupCarot.position.set(0, 0.6, 1);
 	 scene.add(groupCarot);
@@ -1086,8 +1104,8 @@ function render() {
 	const timer = 0.0001 * Date.now();
 	TWEEN.update();
 
-	nhietdo.rotation.x += 0.01;
-	nhietdo.rotation.y += 0.005;
+	//nhietdo.rotation.x += 0.01;
+	//nhietdo.rotation.y += 0.005;
 
 	nhietDoMaterial.opacity = 0.3 * Math.sin(10 * timer);
 
@@ -1247,7 +1265,7 @@ function render() {
 					}
 				});
 			}
-		}, 10000);
+		}, 15000);
 	}
 }
 
@@ -1431,10 +1449,10 @@ window.CloseFucntion = function CloseFucntion() {
 
 	isCarot = false;
 	stepCarot = 0;
-	carot2.position.set(0, 0, 0);
+	//.position.set(0, 0, 0);
 	carot1.position.set(0, 0.25, 0);
 	scene.remove(carot1);
-	scene.remove(carot2);
+	//scene.remove(carot2);
 	scene.remove(controlCarotObj);
 	scene.remove(groupCarot);
 	groupCarot = new THREE.Group();
@@ -1573,6 +1591,8 @@ window.Carot = function Carot(value) {
 	var targetPosition = new THREE.Vector3(1.993908777897646, 1.5186552818666301, 3);
 	tweenMove(targetPosition, 3000);
 	isCarot = true;
+	scene.remove(banhKhay2);
+	scene.remove(khay22);
 	switch (value) {
 		case 0:
 			document.getElementById("fucntion").innerHTML = "Hầm Rau Củ";
@@ -1590,9 +1610,9 @@ window.Carot = function Carot(value) {
 			timeouts.push(
 				setTimeout(() => {
 					scene.add(carot1);
-					scene.add(carot2);
+					//scene.add(carot2);
 					groupCarot.add(carot1),
-					groupCarot.add(carot2),
+					//groupCarot.add(carot2),
 					controlCarotObj.attach(groupCarot);
 					//controlObj.attach(banhModel2);
 					scene.add(controlCarotObj);
