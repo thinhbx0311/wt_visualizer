@@ -250,7 +250,11 @@ function init() {
 		model.scale.set(3, 3, 3);
 
 		model.traverse(function (object) {
-			if (object.isMesh) object.castShadow = true;
+			if (object.isMesh) 
+			{
+				object.castShadow = true;
+				object.material.color = new THREE.Color(0x3a3a3a);
+			}
 		});
 
 		model.getObjectByName("LCD").material = new THREE.MeshBasicMaterial({
@@ -290,6 +294,7 @@ function init() {
 
 	const loaderKhayDuoi = new GLTFLoader();
 	loaderKhayDuoi.load("models/gltf/de chuan 2.gltf", function (gltf) {
+		
 		gltf.scene.children[1].material = new THREE.MeshPhongMaterial({
 			color: 0xffffff,
 			specular: 0xffffff,
@@ -302,6 +307,8 @@ function init() {
 		khay1 = gltf.scene.children[1];
 		khay2 = gltf.scene.children[2];
 		khay3 = gltf.scene.children[3];
+		gltf.scene.children[3].material.color = new THREE.Color(0x000000);
+		gltf.scene.getObjectByName("khay_duoikhay_duoi_ncl1_1").material.color = new THREE.Color(0x000000);
 
 		groupKhay = new THREE.Group();
 		groupKhay.add(khay1);
@@ -315,7 +322,11 @@ function init() {
 		model2.scale.set(0.003, 0.0028, 0.003);
 		model2.position.set(0, 0.01, -0.16);
 		model2.traverse(function (object) {
-			if (object.isMesh) object.castShadow = true;
+			if (object.isMesh) 
+			{
+				object.castShadow = true;
+				
+			}
 		});
 		scene.add(model2);
 	});
