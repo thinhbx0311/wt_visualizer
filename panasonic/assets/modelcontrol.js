@@ -14,6 +14,7 @@ let model, skeleton, mixer, clock, controls;
 var dirLight2;
 var animations;
 var actionMC, actionDC;
+var disableAnnotation = false;
 
 const crossFadeControls = [];
 var timeouts = [];
@@ -48,7 +49,9 @@ var gaModel,
 	groupKhoaiTay,
 	carot1,
 	carot2,
-	groupCarot
+	groupCarot,
+	arrow,
+	arrowModel
 	;
 var controlGaObj, controlBanhObj, controlKhay, controlKhoaiObj, controlCarotObj;
 var objectsSelect = [];
@@ -281,12 +284,17 @@ function init() {
 	});
 
 	const loaderRoom = new GLTFLoader(manager);
-	loaderRoom.load("models/gltf/kitchen.glb", function (gltf) {
+	loaderRoom.load("models/gltf/kitchen.gltf", function (gltf) {
 		var modelRoom = gltf.scene;
 		modelRoom.scale.set(4.5, 4.5, 4.5);
 		modelRoom.position.set(24,-4.2,50);
 		modelRoom.traverse(function (object) {
 			//if (object.isMesh) object.castShadow = true;
+			if (object.isMesh) 
+			{
+				object.castShadow = true;
+				object.material.color = new THREE.Color(0xffffff);
+			}
 		});
 
 		scene.add(modelRoom);
@@ -330,6 +338,31 @@ function init() {
 		});
 		scene.add(model2);
 	});
+	
+
+	arrow = new FBXLoader();
+	arrow.load("models/fbx/Arrow5.fbx", function (object) {
+		arrowModel = object.children[0];
+		arrowModel.scale.set(0.06, 0.06, 0.03);
+		arrowModel.position.set(0.3, 0.1, 1.5);
+		arrowModel.rotation.set(0, 90, 0);
+
+		arrowModel.traverse(function (child) {
+			if (child.isMesh) {
+				child.castShadow = true;
+			}
+		});
+
+		arrowModel.material = new THREE.MeshPhongMaterial({
+			color: 0x0533ff,
+			opacity: 1,
+			transparent: false,
+		});
+
+		
+	});
+
+		
 
 	loaderKhay1 = new FBXLoader();
 	loaderKhay1.load("models/fbx/khay final 4.fbx", function (object) {
@@ -1312,7 +1345,15 @@ function updateScreenPosition() {
 
 	annotation.style.top = `${vector.y}px`;
 	annotation.style.left = `${vector.x}px`;
-	annotation.style.opacity = spriteBehindObject ? 0.25 : 1;
+	if (spriteBehindObject && disableAnnotation == false){
+		annotation.style.opacity = 0.25;
+	}
+	else if (!spriteBehindObject && disableAnnotation == false){
+		annotation.style.opacity = 1;
+	} else{
+		annotation.style.opacity = 0;
+	}
+	
 
 	annotation2.style.top = `${vector2.y}px`;
 	annotation2.style.left = `${vector2.x}px`;
@@ -1461,7 +1502,7 @@ window.CloseFucntion = function CloseFucntion() {
 	isCarot = false;
 	stepCarot = 0;
 	//.position.set(0, 0, 0);
-	carot1.position.set(0, 0.25, 0);
+	carot1.position.set(0, -0.03, 0);
 	scene.remove(carot1);
 	//scene.remove(carot2);
 	scene.remove(controlCarotObj);
@@ -1488,6 +1529,7 @@ window.CloseFucntion = function CloseFucntion() {
 
 	var targetPosition = new THREE.Vector3(0, 0.8, 3);
 	tweenMove(targetPosition, 4000);
+	disableAnnotation = false;
 };
 
 window.NuongGa = function NuongGa(value) {
@@ -1529,6 +1571,7 @@ window.NuongGa = function NuongGa(value) {
 			break;
 		case 3:
 			stepNuongGa = 3;
+			disableAnnotation = true;
 			document.getElementById("fucntion").innerHTML = "Nướng Gà";
 			document.getElementById("step").innerHTML = "Khi nướng gà, nên chọn chế độ <br /> 'Healthy Fry - Chiên không dầu'";
 			document.getElementById("content").innerHTML =
@@ -1550,6 +1593,7 @@ window.BanhBao = function BanhBao(value) {
 	isHapBanh = true;
 	switch (value) {
 		case 0:
+			scene.add(arrowModel);
 			document.getElementById("fucntion").innerHTML = "Hấp Bánh Bao";
 			document.getElementById("content").innerHTML =
 				"Bạn sẽ cần đổ nước vào khay phía dưới và đặt vào vị trí ban đầu. Dùng chuột kéo mũi tên vào bên trong lò để đặt lại khay.";
@@ -1558,6 +1602,7 @@ window.BanhBao = function BanhBao(value) {
 		case 1:
 			stepBanhBao = 1;
 			MoCua();
+			scene.remove(arrowModel);
 			document.getElementById("fucntion").innerHTML = "Hấp Bánh Bao";
 			document.getElementById("content").innerHTML =
 				"Sử dụng chuột kéo mũi tên màu xanh để cho bánh bao vào và đóng cửa lò";
@@ -1594,6 +1639,7 @@ window.BanhBao = function BanhBao(value) {
 			break;
 		case 3:
 			stepBanhBao = 3;
+			disableAnnotation = true;
 			document.getElementById("fucntion").innerHTML = "Hấp Bánh Bao";
 			document.getElementById("step").innerHTML = "Khi hấp bánh bao, nên chọn chế độ <br />'Steam Low - Hấp với nhiệt độ thấp' <br /> 'Stew - Hấp thông thường'";
 			document.getElementById("content").innerHTML =
@@ -1617,6 +1663,7 @@ window.Carot = function Carot(value) {
 	scene.remove(khay22);
 	switch (value) {
 		case 0:
+			scene.add(arrowModel);
 			document.getElementById("fucntion").innerHTML = "Hầm Rau Củ";
 			document.getElementById("content").innerHTML =
 				"Bạn sẽ cần đổ nước vào khay phía dưới và đặt vào vị trí ban đầu. Dùng chuột kéo mũi tên vào bên trong lò để đặt lại khay.";
@@ -1625,6 +1672,7 @@ window.Carot = function Carot(value) {
 		case 1:
 			stepCarot = 1;
 			MoCua();
+			scene.remove(arrowModel);
 			document.getElementById("fucntion").innerHTML = "Hầm Rau Củ";
 			document.getElementById("content").innerHTML =
 				"Sử dụng chuột kéo mũi tên màu xanh để cho rau củ vào và đóng cửa lò";
@@ -1655,6 +1703,7 @@ window.Carot = function Carot(value) {
 			break;
 		case 3:
 			stepCarot = 3;
+			disableAnnotation = true;
 			document.getElementById("fucntion").innerHTML = "Hầm Rau Củ";
 			document.getElementById("step").innerHTML = "Khi hấp bánh bao, nên chọn chế độ <br /> 'Stew - Hấp thông thường'";
 			document.getElementById("content").innerHTML =
@@ -1712,6 +1761,7 @@ window.KhoaiTayChien = function KhoaiTayChien(value) {
 			break;
 		case 3:
 			stepPotato = 3;
+			disableAnnotation = true;
 			document.getElementById("fucntion").innerHTML = "Chiên Khoai Tây";
 			document.getElementById("step").innerHTML = "Khi chiên khoai tây, nên chọn chế độ <br /> 'Healthy Fry - Chiên không dầu'";
 			document.getElementById("content").innerHTML =

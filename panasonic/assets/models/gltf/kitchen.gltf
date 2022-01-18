@@ -1,0 +1,313 @@
+{
+  "asset": {
+    "generator": "Khronos glTF Blender I/O v1.2.75",
+    "version": "2.0"
+  },
+  "extensionsUsed": [
+    "KHR_materials_unlit"
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Scene",
+      "nodes": [
+        0,
+        1
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "mesh": 0,
+      "name": "kitchen",
+      "scale": [
+        0.0010000000474974513,
+        0.0010000000474974513,
+        0.0010000000474974513
+      ],
+      "translation": [
+        -5.513110160827637,
+        0.10000000149011612,
+        -11.154943466186523
+      ]
+    },
+    {
+      "mesh": 1,
+      "name": "walls",
+      "scale": [
+        0.0010000000474974513,
+        0.0010000000474974513,
+        0.0010000000474974513
+      ],
+      "translation": [
+        -5.036965847015381,
+        0.001875000074505806,
+        -9.542264938354492
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "extensions": {
+        "KHR_materials_unlit": {}
+      },
+      "name": "kitchen",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0,
+          "texCoord": 0
+        }
+      }
+    },
+    {
+      "extensions": {
+        "KHR_materials_unlit": {}
+      },
+      "name": "walls",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 1,
+          "texCoord": 0
+        }
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Mesh",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2,
+            "TEXCOORD_1": 3,
+            "TEXCOORD_2": 4,
+            "TEXCOORD_3": 5,
+            "TEXCOORD_4": 6,
+            "COLOR_0": 7
+          },
+          "indices": 8,
+          "material": 0
+        }
+      ]
+    },
+    {
+      "name": "Mesh.001",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 9,
+            "NORMAL": 10,
+            "TEXCOORD_0": 11,
+            "TEXCOORD_1": 12
+          },
+          "indices": 13,
+          "material": 1
+        }
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "source": 0
+    },
+    {
+      "source": 1
+    }
+  ],
+  "images": [
+    {
+      "name": "kitchenCorona_Beauty",
+      "uri": "kitchen_img0.jpg"
+    },
+    {
+      "name": "wallsCorona_Beauty",
+      "uri": "kitchen_img1.jpg"
+    }
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5126,
+      "count": 33196,
+      "max": [
+        2467.499755859375,
+        2642.616943359375,
+        2081.24951171875
+      ],
+      "min": [
+        -602.5,
+        -100,
+        -325
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 33196,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 33196,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 33196,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 4,
+      "componentType": 5126,
+      "count": 33196,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 5,
+      "componentType": 5126,
+      "count": 33196,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 6,
+      "componentType": 5126,
+      "count": 33196,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 7,
+      "componentType": 5126,
+      "count": 33196,
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 8,
+      "componentType": 5123,
+      "count": 59586,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 9,
+      "componentType": 5126,
+      "count": 8255,
+      "max": [
+        2008.645263671875,
+        2740.741943359375,
+        1949.37060546875
+      ],
+      "min": [
+        -2008.6455078125,
+        0,
+        -1949.371337890625
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 10,
+      "componentType": 5126,
+      "count": 8255,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 11,
+      "componentType": 5126,
+      "count": 8255,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 12,
+      "componentType": 5126,
+      "count": 8255,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 13,
+      "componentType": 5123,
+      "count": 16236,
+      "type": "SCALAR"
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 398352,
+      "byteOffset": 0
+    },
+    {
+      "buffer": 0,
+      "byteLength": 398352,
+      "byteOffset": 398352
+    },
+    {
+      "buffer": 0,
+      "byteLength": 265568,
+      "byteOffset": 796704
+    },
+    {
+      "buffer": 0,
+      "byteLength": 265568,
+      "byteOffset": 1062272
+    },
+    {
+      "buffer": 0,
+      "byteLength": 265568,
+      "byteOffset": 1327840
+    },
+    {
+      "buffer": 0,
+      "byteLength": 265568,
+      "byteOffset": 1593408
+    },
+    {
+      "buffer": 0,
+      "byteLength": 265568,
+      "byteOffset": 1858976
+    },
+    {
+      "buffer": 0,
+      "byteLength": 531136,
+      "byteOffset": 2124544
+    },
+    {
+      "buffer": 0,
+      "byteLength": 119172,
+      "byteOffset": 2655680
+    },
+    {
+      "buffer": 0,
+      "byteLength": 99060,
+      "byteOffset": 2774852
+    },
+    {
+      "buffer": 0,
+      "byteLength": 99060,
+      "byteOffset": 2873912
+    },
+    {
+      "buffer": 0,
+      "byteLength": 66040,
+      "byteOffset": 2972972
+    },
+    {
+      "buffer": 0,
+      "byteLength": 66040,
+      "byteOffset": 3039012
+    },
+    {
+      "buffer": 0,
+      "byteLength": 32472,
+      "byteOffset": 3105052
+    }
+  ],
+  "buffers": [
+    {
+      "uri": "kitchen_data.bin",
+      "byteLength": 3137524
+    }
+  ]
+}
