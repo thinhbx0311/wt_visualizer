@@ -339,28 +339,25 @@ function init() {
 		scene.add(model2);
 	});
 	
-
-	arrow = new FBXLoader();
-	arrow.load("models/fbx/arrow5.FBX", function (object) {
-		arrowModel = object.children[0];
-		arrowModel.scale.set(0.06, 0.06, 0.03);
+	const arrow = new GLTFLoader(manager);
+	arrow.load("models/gltf/arrow5.gltf", function (gltf) {
+		arrowModel = gltf.scene;
+		arrowModel.scale.set(2, 1, 1);
 		arrowModel.position.set(0.3, 0.1, 1.5);
 		arrowModel.rotation.set(0, 90, 0);
-
-		arrowModel.traverse(function (child) {
-			if (child.isMesh) {
-				child.castShadow = true;
+		arrowModel.traverse(function (object) {
+			//if (object.isMesh) object.castShadow = true;
+			if (object.isMesh) 
+			{
+				object.castShadow = true;
+				object.material.color = new THREE.Color(0x0533ff);
 			}
 		});
 
-		arrowModel.material = new THREE.MeshPhongMaterial({
-			color: 0x0533ff,
-			opacity: 1,
-			transparent: false,
-		});
-
-		
 	});
+
+
+
 
 		
 
