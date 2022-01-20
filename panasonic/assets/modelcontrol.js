@@ -341,7 +341,7 @@ function init() {
 	
 
 	arrow = new FBXLoader();
-	arrow.load("models/fbx/Arrow5.fbx", function (object) {
+	arrow.load("models/fbx/arrow5.FBX", function (object) {
 		arrowModel = object.children[0];
 		arrowModel.scale.set(0.06, 0.06, 0.03);
 		arrowModel.position.set(0.3, 0.1, 1.5);
